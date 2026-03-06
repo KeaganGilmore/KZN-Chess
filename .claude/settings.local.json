@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f \"c:/Users/keagan/hobbies/KZNchess/claude\")",
+      "Bash(cp -r \"c:/Users/keagan/hobbies/kznchess-temp/\"* \"c:/Users/keagan/hobbies/KZNchess/\")",
+      "Bash(cp -r \"c:/Users/keagan/hobbies/kznchess-temp/\".* \"c:/Users/keagan/hobbies/KZNchess/\")",
+      "Bash(rm -rf \"c:/Users/keagan/hobbies/kznchess-temp\")",
+      "Bash(npm install framer-motion next-auth@4 @next-auth/supabase-adapter @supabase/supabase-js @supabase/ssr date-fns lucide-react clsx tailwind-merge class-variance-authority react-hot-toast zustand @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder)"
+    ]
+  }
+}
