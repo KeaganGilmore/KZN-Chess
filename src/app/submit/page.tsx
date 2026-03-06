@@ -13,9 +13,6 @@ export const metadata = {
 export default async function SubmitPage() {
   const user = await getCurrentUser();
   if (!user) redirect('/auth');
-  if (!['organizer', 'admin'].includes(user.role)) {
-    redirect('/');
-  }
 
   const supabase = createServerClient();
   const { data: districts } = await supabase

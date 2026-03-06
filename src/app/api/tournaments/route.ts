@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || !['organizer', 'admin'].includes(user.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const body = await request.json();

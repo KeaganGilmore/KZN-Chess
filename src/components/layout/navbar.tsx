@@ -89,14 +89,12 @@ export function Navbar() {
                     <p className="text-xs text-primary capitalize">{user?.role}</p>
                   </div>
                   <DropdownMenuSeparator />
-                  {(user?.role === 'organizer' || user?.role === 'admin') && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/submit" className="cursor-pointer">
-                        <Trophy className="w-4 h-4 mr-2" />
-                        Submit Tournament
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem asChild>
+                    <Link href="/submit" className="cursor-pointer">
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Submit Tournament
+                    </Link>
+                  </DropdownMenuItem>
                   {user?.role === 'admin' && (
                     <DropdownMenuItem asChild>
                       <Link href="/admin" className="cursor-pointer">

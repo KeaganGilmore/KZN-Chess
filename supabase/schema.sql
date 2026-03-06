@@ -157,8 +157,8 @@ CREATE POLICY "Approved tournaments viewable by all" ON tournaments FOR SELECT U
 CREATE POLICY "Organizers can view own tournaments" ON tournaments FOR SELECT USING (
   organizer_id = auth.uid()
 );
-CREATE POLICY "Organizers can insert tournaments" ON tournaments FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role IN ('organizer', 'admin'))
+CREATE POLICY "Authenticated users can insert tournaments" ON tournaments FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
 );
 CREATE POLICY "Admins can manage all tournaments" ON tournaments FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')

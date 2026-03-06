@@ -13,9 +13,9 @@ export default withAuth(
       }
     }
 
-    // Submit route - organizer or admin
+    // Submit route - any authenticated user
     if (pathname.startsWith('/submit')) {
-      if (!token?.role || !['organizer', 'admin'].includes(token.role as string)) {
+      if (!token) {
         return NextResponse.redirect(new URL('/auth', req.url));
       }
     }

@@ -30,7 +30,7 @@ export function TournamentBrowser({
   const [view, setView] = useState<'grid' | 'list' | 'calendar'>('grid');
 
   const filtered = useMemo(() => {
-    return tournaments.filter((t) => {
+    const results = tournaments.filter((t) => {
       if (search) {
         const q = search.toLowerCase();
         if (
@@ -45,6 +45,14 @@ export function TournamentBrowser({
       if (ratedFilter === 'rated' && !t.is_rated) return false;
       if (ratedFilter === 'unrated' && t.is_rated) return false;
       return true;
+    });
+
+    // Prioritize endorsed (featured/verified) tournaments
+    return results.sort((a, b) => {
+      const aEndorsed = a.status === 'featured' || a.is_verified ? 1 : 0;
+      const bEndorsed = b.status === 'featured' || b.is_verified ? 1 : 0;
+      if (bEndorsed !== aEndorsed) return bEndorsed - aEndorsed;
+      return 0; // preserve date ordering from server for equal endorsement
     });
   }, [tournaments, search, districtFilter, ratedFilter]);
 

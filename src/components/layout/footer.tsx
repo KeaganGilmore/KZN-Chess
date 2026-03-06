@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Mail, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
@@ -86,9 +87,22 @@ export function Footer() {
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} KZN Chess. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Built for the KwaZulu-Natal chess community
-          </p>
+          <a
+            href="https://coreaxisdev.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Powered by
+            <Image
+              src="/core_axis.svg"
+              alt="Core Axis Development"
+              width={20}
+              height={20}
+              className="inline-block"
+            />
+            <span className="font-medium">Core Axis Development</span>
+          </a>
         </div>
       </div>
     </footer>
