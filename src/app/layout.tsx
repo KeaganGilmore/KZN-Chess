@@ -1,21 +1,23 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import { Space_Grotesk, Inter } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from '@/components/providers/session-provider';
 import { Navbar } from '@/components/layout/navbar';
+import { BottomNav } from '@/components/layout/bottom-nav';
 import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
 
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  display: 'swap',
+  weight: ['500', '600', '700'],
 });
 
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -23,6 +25,9 @@ export const metadata: Metadata = {
   description:
     'The central hub for all chess tournaments across KwaZulu-Natal, South Africa. Find events, register, and grow the chess community.',
   keywords: ['chess', 'KwaZulu-Natal', 'KZN', 'tournament', 'South Africa'],
+  icons: {
+    icon: '/favicon.png',
+  },
   openGraph: {
     title: 'KZN Chess - Every Tournament, One Place',
     description:
@@ -41,12 +46,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen flex flex-col`}
+        className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
         <SessionProvider>
           <Navbar />
-          <main className="flex-1 pt-16">{children}</main>
+          <main className="flex-1 pt-16 pb-16 md:pb-0">{children}</main>
           <Footer />
+          <BottomNav />
           <Toaster />
         </SessionProvider>
       </body>

@@ -13,19 +13,19 @@ export function UpcomingTournaments({
   tournaments: Tournament[];
 }) {
   return (
-    <section className="py-20 border-t border-white/5">
+    <section className="py-16 sm:py-20 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex items-end justify-between mb-10"
+          className="flex items-end justify-between mb-8"
         >
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold">
+            <h2 className="text-2xl sm:text-3xl font-heading font-bold">
               Upcoming Tournaments
             </h2>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-1">
               Find your next event across KwaZulu-Natal
             </p>
           </div>
@@ -48,7 +48,7 @@ export function UpcomingTournaments({
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 glass rounded-2xl">
+          <div className="text-center py-16 bg-card rounded-xl border border-border">
             <p className="text-muted-foreground">
               No upcoming tournaments at the moment. Check back soon!
             </p>
@@ -57,7 +57,7 @@ export function UpcomingTournaments({
 
         <div className="mt-8 text-center sm:hidden">
           <Link href="/tournaments">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2 min-h-[44px]">
               View All Tournaments
               <ArrowRight className="w-4 h-4" />
             </Button>

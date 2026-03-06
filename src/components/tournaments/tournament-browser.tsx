@@ -143,7 +143,7 @@ export function TournamentBrowser({
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 glass rounded-2xl">
+            <div className="text-center py-16 bg-card rounded-xl border border-border">
               <p className="text-muted-foreground">
                 No tournaments match your filters.
               </p>

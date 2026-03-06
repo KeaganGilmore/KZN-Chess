@@ -92,10 +92,10 @@ export function AuthForm() {
   };
 
   return (
-    <Card className="glass border-white/10">
+    <Card className="border-border">
       <CardHeader className="text-center pb-2">
-        <div className="mx-auto w-12 h-12 rounded-xl gold-gradient flex items-center justify-center mb-4">
-          <Trophy className="w-6 h-6 text-black" />
+        <div className="mx-auto w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-4">
+          <Trophy className="w-6 h-6 text-primary-foreground" />
         </div>
         <h1 className="text-2xl font-bold">Welcome to KZN Chess</h1>
         <p className="text-sm text-muted-foreground">
@@ -136,7 +136,7 @@ export function AuthForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full gold-gradient text-black font-semibold hover:opacity-90"
+                className="w-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 min-h-[44px]"
               >
                 {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Sign In
@@ -182,7 +182,7 @@ export function AuthForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full gold-gradient text-black font-semibold hover:opacity-90"
+                className="w-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 min-h-[44px]"
               >
                 {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Create Account

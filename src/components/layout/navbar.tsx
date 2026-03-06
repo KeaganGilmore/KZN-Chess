@@ -3,11 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
 import {
-  Menu,
-  X,
   Trophy,
   LayoutDashboard,
   LogOut,
@@ -33,21 +29,22 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const user = session?.user as any;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center">
-              <Trophy className="w-4 h-4 text-black" />
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary-foreground" fill="currentColor">
+                <path d="M19 22H5v-2h14v2M17.16 8.26A4.96 4.96 0 0018 5.5C18 3.02 15.98 1 13.5 1S9 3.02 9 5.5c0 .98.28 1.9.77 2.67L6 12l1.77 2.83A4.96 4.96 0 007 17.5C7 19.98 9.02 22 11.5 22s4.5-2.02 4.5-4.5c0-.98-.28-1.9-.77-2.67L19 12l-1.84-3.74z" />
+              </svg>
             </div>
-            <span className="font-bold text-lg tracking-tight">
-              <span className="text-gold">KZN</span>
+            <span className="font-heading font-bold text-lg tracking-tight">
+              <span className="text-primary">KZN</span>
               <span className="text-foreground"> Chess</span>
             </span>
           </Link>
@@ -59,10 +56,10 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                   pathname === link.href
                     ? 'text-primary bg-primary/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                 )}
               >
                 {link.label}
@@ -77,7 +74,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="gap-2 text-sm hover:bg-white/5"
+                    className="gap-2 text-sm hover:bg-secondary"
                   >
                     <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center">
                       <User className="w-3.5 h-3.5 text-primary" />
@@ -86,7 +83,7 @@ export function Navbar() {
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 glass">
+                <DropdownMenuContent align="end" className="w-48">
                   <div className="px-2 py-1.5">
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                     <p className="text-xs text-primary capitalize">{user?.role}</p>
@@ -122,7 +119,7 @@ export function Navbar() {
               <Link href="/auth">
                 <Button
                   size="sm"
-                  className="gold-gradient text-black font-semibold hover:opacity-90 transition-opacity"
+                  className="bg-primary text-primary-foreground font-semibold hover:bg-primary/90"
                 >
                   Sign In
                 </Button>
@@ -130,83 +127,10 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* Mobile: just show the logo, bottom nav handles navigation */}
+          <div className="md:hidden" />
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden glass border-t border-white/5 overflow-hidden"
-          >
-            <div className="px-4 py-4 space-y-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    'block px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                    pathname === link.href
-                      ? 'text-primary bg-primary/10'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="pt-2 border-t border-white/5">
-                {session ? (
-                  <>
-                    {(user?.role === 'organizer' || user?.role === 'admin') && (
-                      <Link
-                        href="/submit"
-                        onClick={() => setMobileOpen(false)}
-                        className="block px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5"
-                      >
-                        Submit Tournament
-                      </Link>
-                    )}
-                    {user?.role === 'admin' && (
-                      <Link
-                        href="/admin"
-                        onClick={() => setMobileOpen(false)}
-                        className="block px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5"
-                      >
-                        Admin Dashboard
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => { signOut(); setMobileOpen(false); }}
-                      className="block w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-white/5"
-                    >
-                      Sign Out
-                    </button>
-                  </>
-                ) : (
-                  <Link
-                    href="/auth"
-                    onClick={() => setMobileOpen(false)}
-                    className="block px-4 py-3 rounded-lg text-sm font-medium text-primary hover:bg-primary/10"
-                  >
-                    Sign In
-                  </Link>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </nav>
   );
 }

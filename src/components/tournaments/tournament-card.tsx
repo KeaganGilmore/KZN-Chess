@@ -11,6 +11,7 @@ import {
   BadgeCheck,
   Star,
   Banknote,
+  MessageCircle,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -35,37 +36,43 @@ export function TournamentCard({
 }) {
   const isFeatured = featured || tournament.status === 'featured';
 
+  const whatsappText = encodeURIComponent(
+    `Check out this chess tournament: ${tournament.name} on ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}. More info at kznchess.co.za/tournaments/${tournament.id}`
+  );
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
+      transition={{ duration: 0.3, delay: index * 0.08 }}
     >
       <Link href={`/tournaments/${tournament.id}`}>
         <Card
           className={cn(
-            'group cursor-pointer transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 overflow-hidden',
-            isFeatured && 'border-primary/20 bg-primary/[0.02]'
+            'group cursor-pointer transition-colors duration-200 hover:border-primary/30 overflow-hidden',
+            isFeatured
+              ? 'border-primary/30 bg-primary/[0.03]'
+              : 'border-border'
           )}
         >
           {isFeatured && (
-            <div className="gold-gradient px-4 py-1.5 flex items-center gap-1.5">
-              <Star className="w-3.5 h-3.5 text-black" />
-              <span className="text-xs font-semibold text-black">Featured Tournament</span>
+            <div className="bg-primary px-4 py-1.5 flex items-center gap-1.5">
+              <Star className="w-3.5 h-3.5 text-primary-foreground" />
+              <span className="text-xs font-semibold text-primary-foreground">
+                Featured Tournament
+              </span>
             </div>
           )}
           <CardContent className={cn('p-5', isFeatured && 'pt-4')}>
             <div className="flex flex-col gap-3">
               {/* Header */}
               <div className="flex items-start justify-between gap-3">
-                <h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                <h3 className="font-heading font-semibold text-base leading-tight group-hover:text-primary transition-colors line-clamp-2">
                   {tournament.name}
                 </h3>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {tournament.is_verified && (
-                    <BadgeCheck className="w-4 h-4 text-primary" />
-                  )}
-                </div>
+                {tournament.is_verified && (
+                  <BadgeCheck className="w-4 h-4 text-primary shrink-0" />
+                )}
               </div>
 
               {/* Badges */}
@@ -130,6 +137,22 @@ export function TournamentCard({
                     <span>{tournament.rounds} rounds</span>
                   </div>
                 )}
+              </div>
+
+              {/* WhatsApp share */}
+              <div
+                className="pt-2 border-t border-border"
+                onClick={(e) => e.preventDefault()}
+              >
+                <a
+                  href={`https://wa.me/?text=${whatsappText}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-green-500 hover:text-green-400 transition-colors min-h-[44px] min-w-[44px]"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Share on WhatsApp
+                </a>
               </div>
             </div>
           </CardContent>

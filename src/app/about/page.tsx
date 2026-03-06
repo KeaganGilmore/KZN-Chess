@@ -38,7 +38,7 @@ export default async function AboutPage() {
         {/* Header */}
         <div className="max-w-3xl mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">
-            About <span className="text-gold">KZN Chess</span>
+            About <span className="text-primary">KZN Chess</span>
           </h1>
           <p className="text-lg text-muted-foreground">
             The central platform for chess in KwaZulu-Natal, connecting players,

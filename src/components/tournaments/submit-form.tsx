@@ -359,7 +359,7 @@ export function SubmitTournamentForm({
           <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full gold-gradient text-black font-semibold hover:opacity-90"
+            className="w-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90"
             size="lg"
           >
             {loading ? (
@@ -390,7 +390,7 @@ export function SubmitTournamentForm({
           <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="gold-gradient text-black font-semibold hover:opacity-90"
+            className="bg-primary text-primary-foreground font-semibold hover:bg-primary/90"
           >
             {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Submit for Approval

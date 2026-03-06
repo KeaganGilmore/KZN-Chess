@@ -62,7 +62,7 @@ export function TournamentDetail({
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
                 {isFeatured && (
-                  <Badge className="gold-gradient text-black border-0">
+                  <Badge className="bg-primary text-primary-foreground border-0">
                     <Star className="w-3 h-3 mr-1" />
                     Featured
                   </Badge>
@@ -91,7 +91,7 @@ export function TournamentDetail({
             </div>
           </motion.div>
 
-          <Separator className="bg-white/5" />
+          <Separator className="bg-border" />
 
           {/* Description */}
           {tournament.description && (

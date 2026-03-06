@@ -1,20 +1,22 @@
 import Link from 'next/link';
-import { Trophy, Mail, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-card/50">
+    <footer className="hidden md:block border-t border-border bg-card">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center">
-                <Trophy className="w-4 h-4 text-black" />
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary-foreground" fill="currentColor">
+                  <path d="M19 22H5v-2h14v2M17.16 8.26A4.96 4.96 0 0018 5.5C18 3.02 15.98 1 13.5 1S9 3.02 9 5.5c0 .98.28 1.9.77 2.67L6 12l1.77 2.83A4.96 4.96 0 007 17.5C7 19.98 9.02 22 11.5 22s4.5-2.02 4.5-4.5c0-.98-.28-1.9-.77-2.67L19 12l-1.84-3.74z" />
+                </svg>
               </div>
-              <span className="font-bold text-lg">
-                <span className="text-gold">KZN</span> Chess
+              <span className="font-heading font-bold text-lg">
+                <span className="text-primary">KZN</span> Chess
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -24,7 +26,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-sm font-heading font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               {[
                 { href: '/tournaments', label: 'Tournaments' },
@@ -45,7 +47,7 @@ export function Footer() {
 
           {/* Districts */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Districts</h3>
+            <h3 className="text-sm font-heading font-semibold mb-4">Districts</h3>
             <ul className="space-y-2">
               {['eThekwini', 'uMgungundlavu', 'King Cetshwayo', 'Zululand'].map(
                 (district) => (
@@ -64,7 +66,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Contact</h3>
+            <h3 className="text-sm font-heading font-semibold mb-4">Contact</h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
@@ -78,7 +80,7 @@ export function Footer() {
           </div>
         </div>
 
-        <Separator className="my-8 bg-white/5" />
+        <Separator className="my-8 bg-border" />
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">

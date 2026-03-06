@@ -43,7 +43,7 @@ export function TournamentCalendar({
   }, [tournaments]);
 
   return (
-    <div className="glass rounded-2xl p-4 sm:p-6">
+    <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <Button

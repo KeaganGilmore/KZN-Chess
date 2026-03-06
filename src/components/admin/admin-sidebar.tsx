@@ -40,7 +40,7 @@ export function AdminSidebar() {
             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
             pathname === link.href
               ? 'bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+              : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
           )}
         >
           <link.icon className="w-4 h-4" />

@@ -4,31 +4,39 @@
 
 @layer base {
   :root {
-    --background: 220 20% 4%;
-    --foreground: 210 20% 95%;
-    --card: 220 18% 7%;
-    --card-foreground: 210 20% 95%;
-    --popover: 220 18% 7%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 45 93% 58%;
-    --primary-foreground: 220 20% 4%;
-    --secondary: 220 14% 14%;
-    --secondary-foreground: 210 20% 95%;
-    --muted: 220 14% 12%;
-    --muted-foreground: 215 14% 55%;
-    --accent: 220 14% 14%;
-    --accent-foreground: 210 20% 95%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 20% 95%;
-    --border: 220 14% 16%;
-    --input: 220 14% 16%;
-    --ring: 45 93% 58%;
+    /* KZN Design System - Deep indigo base with warm ochre accent */
+    --background: 240 20% 10%;
+    --foreground: 30 20% 95%;
+    --card: 240 18% 13%;
+    --card-foreground: 30 20% 95%;
+    --popover: 240 18% 13%;
+    --popover-foreground: 30 20% 95%;
+    --primary: 37 74% 56%;
+    --primary-foreground: 240 20% 10%;
+    --secondary: 240 14% 18%;
+    --secondary-foreground: 30 20% 95%;
+    --muted: 240 14% 16%;
+    --muted-foreground: 230 10% 55%;
+    --accent: 168 58% 42%;
+    --accent-foreground: 240 20% 10%;
+    --destructive: 4 70% 48%;
+    --destructive-foreground: 30 20% 95%;
+    --border: 240 12% 20%;
+    --input: 240 12% 20%;
+    --ring: 37 74% 56%;
     --radius: 0.5rem;
-    --chart-1: 45 93% 58%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
+    --chart-1: 37 74% 56%;
+    --chart-2: 168 58% 42%;
+    --chart-3: 4 70% 48%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Named KZN colors */
+    --ochre: #E2A03F;
+    --deep-red: #C0392B;
+    --teal: #1ABC9C;
+    --indigo: #1A1A2E;
+    --warm-white: #F5F0EB;
   }
 }
 
@@ -45,17 +53,50 @@
   .text-balance {
     text-wrap: balance;
   }
-  .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+
+  /* Ochre/gold accent */
+  .bg-ochre {
+    background-color: var(--ochre);
   }
-  .glass-hover {
-    @apply hover:bg-white/10 hover:border-white/20 transition-all duration-300;
+  .text-ochre {
+    color: var(--ochre);
   }
-  .gold-gradient {
-    @apply bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600;
+  .border-ochre {
+    border-color: var(--ochre);
   }
-  .text-gold {
-    @apply bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent;
+
+  /* Teal accent */
+  .bg-teal-accent {
+    background-color: var(--teal);
+  }
+  .text-teal-accent {
+    color: var(--teal);
+  }
+
+  /* Deep red */
+  .bg-deep-red {
+    background-color: var(--deep-red);
+  }
+  .text-deep-red {
+    color: var(--deep-red);
+  }
+
+  /* Zulu geometric pattern backgrounds */
+  .pattern-zulu {
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20Z' fill='none' stroke='%23E2A03F' stroke-width='0.5' opacity='0.06'/%3E%3C/svg%3E");
+  }
+
+  .pattern-triangles {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='30,5 55,50 5,50' fill='none' stroke='%23E2A03F' stroke-width='0.5' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  .pattern-diamonds {
+    background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 0 L30 15 L15 30 L0 15Z' fill='none' stroke='%23F5F0EB' stroke-width='0.4' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  /* Diamond stat shape */
+  .diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   }
 }
 
@@ -69,14 +110,14 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(220 18% 7%);
+  background: hsl(240 18% 10%);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(220 14% 20%);
+  background: hsl(240 14% 22%);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(220 14% 30%);
+  background: hsl(240 14% 30%);
 }

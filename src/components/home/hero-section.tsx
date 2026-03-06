@@ -2,10 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Search } from 'lucide-react';
+import { Search, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AuroraBackground } from '@/components/ui/aurora-background';
-import { BlurText } from '@/components/ui/blur-text';
 
 interface HeroContent {
   title?: string;
@@ -14,87 +12,101 @@ interface HeroContent {
 }
 
 export function HeroSection({ content }: { content?: HeroContent }) {
-  const title = content?.title || 'KwaZulu-Natal Chess';
   const subtitle = content?.subtitle || 'Every Tournament, One Place';
   const description =
     content?.description ||
     'The central hub for all chess tournaments across KwaZulu-Natal. Find events, register, and grow the chess community.';
 
   return (
-    <AuroraBackground className="min-h-[85vh] flex items-center">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="max-w-3xl mx-auto text-center">
-          {/* Chess grid pattern */}
+    <section className="relative overflow-hidden pattern-zulu">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          {/* Text content */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.03 }}
-            transition={{ duration: 2 }}
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: `linear-gradient(45deg, currentColor 25%, transparent 25%), linear-gradient(-45deg, currentColor 25%, transparent 25%), linear-gradient(45deg, transparent 75%, currentColor 75%), linear-gradient(-45deg, transparent 75%, currentColor 75%)`,
-              backgroundSize: '40px 40px',
-              backgroundPosition: '0 0, 0 20px, 20px -20px, -20px 0px',
-            }}
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-6"
+            transition={{ duration: 0.5 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium text-primary">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               Live Tournament Hub
-            </span>
+            </div>
+
+            <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+              <span className="text-primary">KwaZulu-Natal</span>
+              <br />
+              <span className="text-foreground">{subtitle}</span>
+            </h1>
+
+            <p className="text-base sm:text-lg text-muted-foreground max-w-lg mb-8 leading-relaxed">
+              {description}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/tournaments">
+                <Button
+                  size="lg"
+                  className="bg-primary text-primary-foreground font-semibold text-base px-6 hover:bg-primary/90 w-full sm:w-auto min-h-[44px]"
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Browse Tournaments
+                </Button>
+              </Link>
+              <Link href="/about">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="text-base px-6 border-border hover:bg-secondary w-full sm:w-auto min-h-[44px]"
+                >
+                  Learn More
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </motion.div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6">
-            <BlurText text={title} className="text-gold block" />
-            <BlurText
-              text={subtitle}
-              className="text-foreground block mt-2"
-              delay={0.3}
-            />
-          </h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            {description}
-          </motion.p>
-
+          {/* Chess knight illustration */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="hidden lg:flex items-center justify-center"
           >
-            <Link href="/tournaments">
-              <Button
-                size="lg"
-                className="gold-gradient text-black font-semibold text-base px-8 hover:opacity-90 transition-opacity w-full sm:w-auto"
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Browse Tournaments
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button
-                variant="outline"
-                size="lg"
-                className="text-base px-8 border-white/10 hover:bg-white/5 w-full sm:w-auto"
-              >
-                Learn More
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+            <div className="relative">
+              <div className="w-72 h-72 bg-primary/5 border border-primary/10 rotate-45 rounded-3xl" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <svg
+                  viewBox="0 0 45 45"
+                  className="w-40 h-40 text-primary opacity-80"
+                  fill="currentColor"
+                >
+                  <g transform="translate(0,0.5)">
+                    <path
+                      d="M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18"
+                      style={{ fill: 'currentColor', opacity: 0.15 }}
+                    />
+                    <path
+                      d="M 24,18 C 24.38,20.91 18.45,25.37 16,27 C 13,29 13.18,31.34 11,31 C 9.958,30.06 12.41,27.96 11,28 C 10,28 11.19,29.23 10,30 C 9,30 5.997,31 6,26 C 6,24 12,14 12,14 C 12,14 13.89,12.1 14,10.5 C 13.27,9.506 13.5,8.5 13.5,7.5 C 14.5,6.5 16.5,10 16.5,10 L 18.5,10 C 18.5,10 19.28,8.008 21,7 C 22,7 22,10 22,10"
+                      style={{ fill: 'currentColor' }}
+                    />
+                    <path
+                      d="M 9.5 25.5 A 0.5 0.5 0 1 1 8.5,25.5 A 0.5 0.5 0 1 1 9.5 25.5 z"
+                      style={{ fill: 'hsl(var(--background))' }}
+                    />
+                    <path
+                      d="M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1 15 15.5 z"
+                      transform="matrix(0.866,0.5,-0.5,0.866,9.693,-5.173)"
+                      style={{ fill: 'hsl(var(--background))' }}
+                    />
+                  </g>
+                </svg>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
-    </AuroraBackground>
+
+      <div className="h-0.5 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+    </section>
   );
 }

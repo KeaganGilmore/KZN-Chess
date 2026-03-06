@@ -71,7 +71,7 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
                     <p className="text-3xl font-bold mt-1">{stat.value}</p>
                   </div>
                   <div
-                    className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center ${stat.color}`}
+                    className={`w-10 h-10 rounded-lg bg-secondary flex items-center justify-center ${stat.color}`}
                   >
                     <stat.icon className="w-5 h-5" />
                   </div>
@@ -120,7 +120,7 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
                 {data.pendingTournaments.map((t: any) => (
                   <div
                     key={t.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-white/5"
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{t.name}</p>
@@ -156,7 +156,7 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
             {data.recentLogs.length > 0 ? (
               <div className="space-y-3">
                 {data.recentLogs.slice(0, 5).map((log: any) => (
-                  <div key={log.id} className="p-3 rounded-lg bg-white/5">
+                  <div key={log.id} className="p-3 rounded-lg bg-secondary">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium capitalize">
                         {log.action.replace(/_/g, ' ')}
