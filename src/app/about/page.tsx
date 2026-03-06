@@ -13,16 +13,20 @@ export const metadata = {
 export const revalidate = 0;
 
 async function getData() {
-  const supabase = createServerClient();
-  const [contentRes, districtsRes] = await Promise.all([
-    supabase.from('site_content').select('*').eq('key', 'about').single(),
-    supabase.from('districts').select('*').eq('is_active', true).order('name'),
-  ]);
+  try {
+    const supabase = createServerClient();
+    const [contentRes, districtsRes] = await Promise.all([
+      supabase.from('site_content').select('*').eq('key', 'about').single(),
+      supabase.from('districts').select('*').eq('is_active', true).order('name'),
+    ]);
 
-  return {
-    aboutContent: (contentRes.data?.value as any)?.content || '',
-    districts: (districtsRes.data || []) as District[],
-  };
+    return {
+      aboutContent: (contentRes.data?.value as any)?.content || '',
+      districts: (districtsRes.data || []) as District[],
+    };
+  } catch {
+    return { aboutContent: '', districts: [] };
+  }
 }
 
 export default async function AboutPage() {

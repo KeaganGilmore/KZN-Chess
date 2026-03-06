@@ -11,21 +11,25 @@ export const metadata = {
 };
 
 async function getData() {
-  const supabase = createServerClient();
+  try {
+    const supabase = createServerClient();
 
-  const [tournamentsRes, districtsRes] = await Promise.all([
-    supabase
-      .from('tournaments')
-      .select('*, district:districts(*)')
-      .in('status', ['approved', 'featured'])
-      .order('date', { ascending: true }),
-    supabase.from('districts').select('*').eq('is_active', true).order('name'),
-  ]);
+    const [tournamentsRes, districtsRes] = await Promise.all([
+      supabase
+        .from('tournaments')
+        .select('*, district:districts(*)')
+        .in('status', ['approved', 'featured'])
+        .order('date', { ascending: true }),
+      supabase.from('districts').select('*').eq('is_active', true).order('name'),
+    ]);
 
-  return {
-    tournaments: (tournamentsRes.data || []) as Tournament[],
-    districts: (districtsRes.data || []) as District[],
-  };
+    return {
+      tournaments: (tournamentsRes.data || []) as Tournament[],
+      districts: (districtsRes.data || []) as District[],
+    };
+  } catch {
+    return { tournaments: [], districts: [] };
+  }
 }
 
 export default async function TournamentsPage() {
