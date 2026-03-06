@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import {
@@ -23,6 +24,8 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/tournaments', label: 'Tournaments' },
+  { href: '/feed', label: 'Feed' },
+  { href: '/gallery', label: 'Gallery' },
   { href: '/about', label: 'About' },
 ];
 
@@ -33,16 +36,18 @@ export function Navbar() {
   const user = session?.user as any;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border pattern-beadwork">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary-foreground" fill="currentColor">
-                <path d="M19 22H5v-2h14v2M17.16 8.26A4.96 4.96 0 0018 5.5C18 3.02 15.98 1 13.5 1S9 3.02 9 5.5c0 .98.28 1.9.77 2.67L6 12l1.77 2.83A4.96 4.96 0 007 17.5C7 19.98 9.02 22 11.5 22s4.5-2.02 4.5-4.5c0-.98-.28-1.9-.77-2.67L19 12l-1.84-3.74z" />
-              </svg>
-            </div>
+            <Image
+              src="/favicon.png"
+              alt="KZN Chess"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
             <span className="font-heading font-bold text-lg tracking-tight">
               <span className="text-primary">KZN</span>
               <span className="text-foreground"> Chess</span>

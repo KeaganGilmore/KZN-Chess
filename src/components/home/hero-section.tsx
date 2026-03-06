@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Search, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,10 @@ export function HeroSection({ content }: { content?: HeroContent }) {
     'The central hub for all chess tournaments across KwaZulu-Natal. Find events, register, and grow the chess community.';
 
   return (
-    <section className="relative overflow-hidden pattern-zulu">
+    <section className="relative overflow-hidden pattern-shield gradient-kzn-sunset">
+      {/* Decorative beadwork-inspired top border */}
+      <div className="h-1 bg-gradient-to-r from-[var(--ochre)] via-[var(--teal)] to-[var(--deep-red)]" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           {/* Text content */}
@@ -29,7 +33,7 @@ export function HeroSection({ content }: { content?: HeroContent }) {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-primary mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Live Tournament Hub
+              Indaba yama-Tournament
             </div>
 
             <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
@@ -52,20 +56,20 @@ export function HeroSection({ content }: { content?: HeroContent }) {
                   Browse Tournaments
                 </Button>
               </Link>
-              <Link href="/about">
+              <Link href="/feed">
                 <Button
                   variant="outline"
                   size="lg"
                   className="text-base px-6 border-border hover:bg-secondary w-full sm:w-auto min-h-[44px]"
                 >
-                  Learn More
+                  Indaba Feed
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
           </motion.div>
 
-          {/* Chess knight illustration */}
+          {/* Chess knight in Zulu shield motif */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -73,40 +77,33 @@ export function HeroSection({ content }: { content?: HeroContent }) {
             className="hidden lg:flex items-center justify-center"
           >
             <div className="relative">
-              <div className="w-72 h-72 bg-primary/5 border border-primary/10 rotate-45 rounded-3xl" />
+              {/* Outer diamond - isihlangu shield shape */}
+              <div className="w-80 h-80 border border-primary/10 rotate-45 rounded-3xl relative">
+                <div className="absolute inset-4 border border-primary/8 rounded-2xl" />
+                <div className="absolute inset-8 bg-primary/[0.03] border border-primary/6 rounded-xl" />
+              </div>
+              {/* Inner decorative diamonds */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-primary/20" />
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-primary/20" />
+              <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 rotate-45 bg-teal-accent/20" />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 rotate-45 bg-teal-accent/20" />
+              {/* Official logo centered */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <svg
-                  viewBox="0 0 45 45"
-                  className="w-40 h-40 text-primary opacity-80"
-                  fill="currentColor"
-                >
-                  <g transform="translate(0,0.5)">
-                    <path
-                      d="M 22,10 C 32.5,11 38.5,18 38,39 L 15,39 C 15,30 25,32.5 23,18"
-                      style={{ fill: 'currentColor', opacity: 0.15 }}
-                    />
-                    <path
-                      d="M 24,18 C 24.38,20.91 18.45,25.37 16,27 C 13,29 13.18,31.34 11,31 C 9.958,30.06 12.41,27.96 11,28 C 10,28 11.19,29.23 10,30 C 9,30 5.997,31 6,26 C 6,24 12,14 12,14 C 12,14 13.89,12.1 14,10.5 C 13.27,9.506 13.5,8.5 13.5,7.5 C 14.5,6.5 16.5,10 16.5,10 L 18.5,10 C 18.5,10 19.28,8.008 21,7 C 22,7 22,10 22,10"
-                      style={{ fill: 'currentColor' }}
-                    />
-                    <path
-                      d="M 9.5 25.5 A 0.5 0.5 0 1 1 8.5,25.5 A 0.5 0.5 0 1 1 9.5 25.5 z"
-                      style={{ fill: 'hsl(var(--background))' }}
-                    />
-                    <path
-                      d="M 15 15.5 A 0.5 1.5 0 1 1 14,15.5 A 0.5 1.5 0 1 1 15 15.5 z"
-                      transform="matrix(0.866,0.5,-0.5,0.866,9.693,-5.173)"
-                      style={{ fill: 'hsl(var(--background))' }}
-                    />
-                  </g>
-                </svg>
+                <Image
+                  src="/favicon.png"
+                  alt="KZN Chess"
+                  width={120}
+                  height={120}
+                  className="opacity-90"
+                />
               </div>
             </div>
           </motion.div>
         </div>
       </div>
 
-      <div className="h-0.5 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      {/* Beadwork-inspired bottom divider */}
+      <div className="divider-zulu" />
     </section>
   );
 }

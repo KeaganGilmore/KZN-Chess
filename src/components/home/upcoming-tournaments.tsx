@@ -13,7 +13,7 @@ export function UpcomingTournaments({
   tournaments: Tournament[];
 }) {
   return (
-    <section className="py-16 sm:py-20 border-t border-border">
+    <section className="py-16 sm:py-20 border-t border-border pattern-zigzag">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -22,11 +22,11 @@ export function UpcomingTournaments({
           className="flex items-end justify-between mb-8"
         >
           <div>
-            <h2 className="text-2xl sm:text-3xl font-heading font-bold">
-              Upcoming Tournaments
+            <h2 className="text-2xl sm:text-3xl font-heading font-bold section-header-zulu">
+              Upcoming <span className="text-primary">Tournaments</span>
             </h2>
             <p className="text-muted-foreground mt-1">
-              Find your next event across KwaZulu-Natal
+              Thola imidlalo yakho elandelayo — Find your next event across KwaZulu-Natal
             </p>
           </div>
           <Link href="/tournaments" className="hidden sm:block">

@@ -2,12 +2,13 @@
 
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   Calendar,
   Clock,
   MapPin,
   Users,
-  BadgeCheck,
+  ShieldCheck,
   Star,
   Banknote,
   Trophy,
@@ -23,6 +24,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { TournamentCard } from './tournament-card';
+import { TournamentSocial } from './tournament-social';
+import { TournamentGallery } from './tournament-gallery';
 import { useToast } from '@/hooks/use-toast';
 import type { Tournament } from '@/lib/types';
 
@@ -35,6 +38,7 @@ export function TournamentDetail({
 }) {
   const { toast } = useToast();
   const isFeatured = tournament.status === 'featured';
+  const isEndorsed = isFeatured || tournament.is_verified;
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   const shareText = `${tournament.name} - ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}`;
@@ -49,8 +53,28 @@ export function TournamentDetail({
     window.open(url, '_blank');
   };
 
+  const isPast = new Date(tournament.end_date || tournament.date) < new Date();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Poster Banner */}
+      {tournament.poster_url && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 rounded-xl overflow-hidden border border-border relative"
+        >
+          <Image
+            src={tournament.poster_url}
+            alt={tournament.name}
+            width={1200}
+            height={400}
+            className="w-full h-48 sm:h-64 lg:h-80 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        </motion.div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
@@ -67,10 +91,14 @@ export function TournamentDetail({
                     Featured
                   </Badge>
                 )}
-                {tournament.is_verified && (
-                  <Badge variant="outline" className="border-primary/30 text-primary">
-                    <BadgeCheck className="w-3 h-3 mr-1" />
-                    Verified
+                {isEndorsed ? (
+                  <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 gap-1">
+                    <ShieldCheck className="w-3 h-3" />
+                    Officially Endorsed
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-muted text-muted-foreground">
+                    Community
                   </Badge>
                 )}
                 <Badge variant="outline" className="capitalize">
@@ -79,6 +107,11 @@ export function TournamentDetail({
                 <Badge variant={tournament.is_rated ? 'default' : 'outline'}>
                   {tournament.is_rated ? 'Rated' : 'Unrated'}
                 </Badge>
+                {isPast && (
+                  <Badge variant="outline" className="bg-muted text-muted-foreground">
+                    Completed
+                  </Badge>
+                )}
               </div>
 
               <h1 className="text-3xl sm:text-4xl font-bold">{tournament.name}</h1>
@@ -191,6 +224,24 @@ export function TournamentDetail({
               </Card>
             </motion.div>
           )}
+
+          {/* Media Gallery */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            <TournamentGallery tournamentId={tournament.id} isPast={isPast} />
+          </motion.div>
+
+          {/* Social Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <TournamentSocial tournamentId={tournament.id} />
+          </motion.div>
         </div>
 
         {/* Sidebar */}

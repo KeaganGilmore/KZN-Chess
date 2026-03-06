@@ -5,23 +5,27 @@ import { Separator } from '@/components/ui/separator';
 
 export function Footer() {
   return (
-    <footer className="hidden md:block border-t border-border bg-card">
+    <footer className="hidden md:block bg-card pattern-beadwork">
+      {/* Beadwork top border */}
+      <div className="h-1 bg-gradient-to-r from-[var(--ochre)] via-[var(--teal)] to-[var(--deep-red)]" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary-foreground" fill="currentColor">
-                  <path d="M19 22H5v-2h14v2M17.16 8.26A4.96 4.96 0 0018 5.5C18 3.02 15.98 1 13.5 1S9 3.02 9 5.5c0 .98.28 1.9.77 2.67L6 12l1.77 2.83A4.96 4.96 0 007 17.5C7 19.98 9.02 22 11.5 22s4.5-2.02 4.5-4.5c0-.98-.28-1.9-.77-2.67L19 12l-1.84-3.74z" />
-                </svg>
-              </div>
+              <Image
+                src="/favicon.png"
+                alt="KZN Chess"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
               <span className="font-heading font-bold text-lg">
                 <span className="text-primary">KZN</span> Chess
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              The central hub for all chess tournaments across KwaZulu-Natal, South Africa.
+              Isikhungo sayo yonke imidlalo ye-chess KwaZulu-Natal — The central hub for chess across KZN.
             </p>
           </div>
 
@@ -31,6 +35,8 @@ export function Footer() {
             <ul className="space-y-2">
               {[
                 { href: '/tournaments', label: 'Tournaments' },
+                { href: '/gallery', label: 'Gallery' },
+                { href: '/feed', label: 'Feed' },
                 { href: '/about', label: 'About' },
                 { href: '/auth', label: 'Sign In' },
               ].map((link) => (

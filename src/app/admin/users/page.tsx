@@ -168,11 +168,11 @@ export default function AdminUsersPage() {
                   >
                     {u.is_active ? (
                       <>
-                        <ShieldOff className="w-3.5 h-3.5" /> Disable
+                        <ShieldOff className="w-3.5 h-3.5" /> Ban
                       </>
                     ) : (
                       <>
-                        <Shield className="w-3.5 h-3.5" /> Enable
+                        <Shield className="w-3.5 h-3.5" /> Unban
                       </>
                     )}
                   </Button>

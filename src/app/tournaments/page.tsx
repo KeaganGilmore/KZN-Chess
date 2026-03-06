@@ -39,9 +39,11 @@ export default async function TournamentsPage() {
     <PageTransition>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Tournaments</h1>
+          <h1 className="text-3xl font-bold">
+            <span className="text-primary">Ama</span>tournaments
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Find chess events across KwaZulu-Natal
+            Thola imidlalo ye-chess KwaZulu-Natal — Find chess events across all 11 districts
           </p>
         </div>
         <TournamentBrowser tournaments={tournaments} districts={districts} />

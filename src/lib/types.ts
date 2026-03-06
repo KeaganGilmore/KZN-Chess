@@ -77,6 +77,35 @@ export interface SiteContent {
   updated_at: string;
 }
 
+export interface TournamentMedia {
+  id: string;
+  tournament_id: string;
+  uploaded_by: string;
+  url: string;
+  caption: string | null;
+  media_type: 'image' | 'poster';
+  created_at: string;
+  uploader?: User;
+  tournament?: Tournament;
+}
+
+export interface TournamentComment {
+  id: string;
+  tournament_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+}
+
+export interface TournamentLike {
+  id: string;
+  tournament_id: string;
+  user_id: string;
+  created_at: string;
+}
+
 export interface AuditLog {
   id: string;
   admin_id: string | null;

@@ -4,7 +4,9 @@
 
 @layer base {
   :root {
-    /* KZN Design System - Deep indigo base with warm ochre accent */
+    /* KZN Design System - Zulu-inspired earth and fire palette
+       Deep indigo night sky, ochre sunset warmth, teal ocean,
+       inspired by the beadwork of uMzansi and the rolling hills of KZN */
     --background: 240 20% 10%;
     --foreground: 30 20% 95%;
     --card: 240 18% 13%;
@@ -31,12 +33,15 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
-    /* Named KZN colors */
+    /* Named KZN colors - Zulu beadwork palette */
     --ochre: #E2A03F;
     --deep-red: #C0392B;
     --teal: #1ABC9C;
     --indigo: #1A1A2E;
     --warm-white: #F5F0EB;
+    --earth-brown: #8B6914;
+    --clay: #A0522D;
+    --savanna-green: #6B8E23;
   }
 }
 
@@ -55,48 +60,150 @@
   }
 
   /* Ochre/gold accent */
-  .bg-ochre {
-    background-color: var(--ochre);
-  }
-  .text-ochre {
-    color: var(--ochre);
-  }
-  .border-ochre {
-    border-color: var(--ochre);
-  }
+  .bg-ochre { background-color: var(--ochre); }
+  .text-ochre { color: var(--ochre); }
+  .border-ochre { border-color: var(--ochre); }
 
   /* Teal accent */
-  .bg-teal-accent {
-    background-color: var(--teal);
-  }
-  .text-teal-accent {
-    color: var(--teal);
-  }
+  .bg-teal-accent { background-color: var(--teal); }
+  .text-teal-accent { color: var(--teal); }
 
   /* Deep red */
-  .bg-deep-red {
-    background-color: var(--deep-red);
-  }
-  .text-deep-red {
-    color: var(--deep-red);
-  }
+  .bg-deep-red { background-color: var(--deep-red); }
+  .text-deep-red { color: var(--deep-red); }
 
-  /* Zulu geometric pattern backgrounds */
+  /* Earth brown */
+  .bg-earth { background-color: var(--earth-brown); }
+  .text-earth { color: var(--earth-brown); }
+
+  /* ===========================================
+     ZULU GEOMETRIC PATTERNS
+     Inspired by isicholo (headwear), izimbenge
+     (beer pot lids), and traditional beadwork
+     =========================================== */
+
+  /* Primary diamond pattern - isShungu (diamond shield motif) */
   .pattern-zulu {
-    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20Z' fill='none' stroke='%23E2A03F' stroke-width='0.5' opacity='0.06'/%3E%3C/svg%3E");
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20Z' fill='none' stroke='%23E2A03F' stroke-width='0.5' opacity='0.06'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 L70 40 L40 70 L10 40Z' fill='none' stroke='%23E2A03F' stroke-width='0.3' opacity='0.03'/%3E%3C/svg%3E");
   }
 
+  /* Triangle pattern - umuzi (homestead) rooftops */
   .pattern-triangles {
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='30,5 55,50 5,50' fill='none' stroke='%23E2A03F' stroke-width='0.5' opacity='0.05'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='30,5 55,50 5,50' fill='none' stroke='%23E2A03F' stroke-width='0.5' opacity='0.05'/%3E%3Cpolygon points='30,55 55,10 5,10' fill='none' stroke='%231ABC9C' stroke-width='0.3' opacity='0.03'/%3E%3C/svg%3E");
   }
 
+  /* Diamond grid - ubuciko (beadwork craft) */
   .pattern-diamonds {
     background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 0 L30 15 L15 30 L0 15Z' fill='none' stroke='%23F5F0EB' stroke-width='0.4' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  /* Zigzag pattern - amaZigzag (love letter beadwork borders) */
+  .pattern-zigzag {
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L10 0 L20 10 L30 0 L40 10 L30 20 L20 10 L10 20Z' fill='none' stroke='%23E2A03F' stroke-width='0.4' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  /* Nested diamond - isihlangu (shield) motif */
+  .pattern-shield {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 30 L30 55 L5 30Z' fill='none' stroke='%23E2A03F' stroke-width='0.5' opacity='0.05'/%3E%3Cpath d='M30 15 L45 30 L30 45 L15 30Z' fill='none' stroke='%231ABC9C' stroke-width='0.3' opacity='0.03'/%3E%3Cpath d='M30 22 L38 30 L30 38 L22 30Z' fill='none' stroke='%23C0392B' stroke-width='0.3' opacity='0.025'/%3E%3C/svg%3E");
+  }
+
+  /* Horizontal beadwork bands */
+  .pattern-beadwork {
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='1.5' fill='%23E2A03F' opacity='0.04'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0 L40 20 L20 40 L0 20Z' fill='none' stroke='%23E2A03F' stroke-width='0.3' opacity='0.03'/%3E%3C/svg%3E");
   }
 
   /* Diamond stat shape */
   .diamond {
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+
+  /* Zulu border accent - top/bottom decorative line */
+  .border-zulu {
+    border-image: repeating-linear-gradient(
+      90deg,
+      var(--ochre) 0px,
+      var(--ochre) 8px,
+      transparent 8px,
+      transparent 12px,
+      var(--teal) 12px,
+      var(--teal) 20px,
+      transparent 20px,
+      transparent 24px,
+      var(--deep-red) 24px,
+      var(--deep-red) 32px,
+      transparent 32px,
+      transparent 36px
+    ) 2;
+  }
+
+  /* Gradient inspired by KZN sunsets over the Indian Ocean */
+  .gradient-kzn-sunset {
+    background: linear-gradient(
+      135deg,
+      hsl(37 74% 56% / 0.15) 0%,
+      hsl(4 70% 48% / 0.1) 50%,
+      hsl(240 20% 10% / 0.95) 100%
+    );
+  }
+
+  /* Divider with Zulu diamond motif */
+  .divider-zulu {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--primary) / 0.3) 20%,
+      hsl(var(--primary) / 0.6) 50%,
+      hsl(var(--primary) / 0.3) 80%,
+      transparent
+    );
+    height: 2px;
+    position: relative;
+  }
+
+  .divider-zulu::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background: hsl(var(--primary));
+    border-radius: 1px;
+  }
+}
+
+@layer components {
+  /* Card with cultural border accent */
+  .card-cultural {
+    @apply border-border;
+    border-top: 2px solid transparent;
+    border-image: linear-gradient(
+      90deg,
+      var(--ochre),
+      var(--teal),
+      var(--deep-red),
+      var(--ochre)
+    ) 1;
+    border-image-slice: 1;
+    border-image-width: 2px 0 0 0;
+  }
+
+  /* Section with Zulu-inspired header */
+  .section-header-zulu {
+    @apply relative pb-4 mb-6;
+  }
+  .section-header-zulu::after {
+    content: '';
+    @apply absolute bottom-0 left-0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ochre), var(--teal));
+    border-radius: 2px;
   }
 }
 
@@ -119,5 +226,5 @@ html {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(240 14% 30%);
+  background: hsl(37 74% 40%);
 }

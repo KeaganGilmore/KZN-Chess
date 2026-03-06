@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { Home, Trophy, Info, User, LayoutDashboard } from 'lucide-react';
+import { Home, Trophy, Newspaper, ImageIcon, User, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function BottomNav() {
@@ -13,8 +13,9 @@ export function BottomNav() {
 
   const links = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/tournaments', label: 'Tournaments', icon: Trophy },
-    { href: '/about', label: 'About', icon: Info },
+    { href: '/tournaments', label: 'Events', icon: Trophy },
+    { href: '/feed', label: 'Feed', icon: Newspaper },
+    { href: '/gallery', label: 'Gallery', icon: ImageIcon },
     ...(user?.role === 'admin'
       ? [{ href: '/admin', label: 'Admin', icon: LayoutDashboard }]
       : []),

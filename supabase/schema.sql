@@ -124,6 +124,49 @@ CREATE INDEX idx_audit_logs_admin ON audit_logs(admin_id);
 CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
 
 -- ============================================
+-- TOURNAMENT MEDIA TABLE
+-- ============================================
+CREATE TABLE tournament_media (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE NOT NULL,
+  uploaded_by UUID REFERENCES users(id) NOT NULL,
+  url TEXT NOT NULL,
+  caption TEXT,
+  media_type TEXT DEFAULT 'image' CHECK (media_type IN ('image', 'poster')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_tournament_media_tournament ON tournament_media(tournament_id);
+
+-- ============================================
+-- TOURNAMENT COMMENTS TABLE
+-- ============================================
+CREATE TABLE tournament_comments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES users(id) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_tournament_comments_tournament ON tournament_comments(tournament_id);
+
+-- ============================================
+-- TOURNAMENT LIKES TABLE
+-- ============================================
+CREATE TABLE tournament_likes (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES users(id) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(tournament_id, user_id)
+);
+
+CREATE INDEX idx_tournament_likes_tournament ON tournament_likes(tournament_id);
+CREATE INDEX idx_tournament_likes_user ON tournament_likes(user_id);
+
+-- ============================================
 -- ROW LEVEL SECURITY POLICIES
 -- ============================================
 
@@ -178,6 +221,35 @@ CREATE POLICY "Admins manage site content" ON site_content FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
+-- Tournament media: viewable by all, insertable by authenticated users, manageable by admins
+ALTER TABLE tournament_media ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Media viewable by all" ON tournament_media FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can upload media" ON tournament_media FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
+);
+CREATE POLICY "Admins manage media" ON tournament_media FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
+);
+
+-- Tournament comments: viewable by all, insertable by authenticated users
+ALTER TABLE tournament_comments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Comments viewable by all" ON tournament_comments FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can comment" ON tournament_comments FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
+);
+CREATE POLICY "Users can delete own comments" ON tournament_comments FOR DELETE USING (user_id = auth.uid());
+CREATE POLICY "Admins manage comments" ON tournament_comments FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
+);
+
+-- Tournament likes: viewable by all, authenticated users can toggle
+ALTER TABLE tournament_likes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Likes viewable by all" ON tournament_likes FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can like" ON tournament_likes FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
+);
+CREATE POLICY "Users can remove own likes" ON tournament_likes FOR DELETE USING (user_id = auth.uid());
+
 -- Audit logs: admin only
 CREATE POLICY "Admins can view audit logs" ON audit_logs FOR SELECT USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
@@ -201,3 +273,4 @@ CREATE TRIGGER update_districts_updated_at BEFORE UPDATE ON districts FOR EACH R
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_tournaments_updated_at BEFORE UPDATE ON tournaments FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_announcements_updated_at BEFORE UPDATE ON announcements FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER update_comments_updated_at BEFORE UPDATE ON tournament_comments FOR EACH ROW EXECUTE FUNCTION update_updated_at();

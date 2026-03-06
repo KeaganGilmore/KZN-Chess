@@ -18,6 +18,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TournamentCard } from './tournament-card';
+import { MediaUpload } from './media-upload';
 import { useToast } from '@/hooks/use-toast';
 import type { District, Tournament } from '@/lib/types';
 
@@ -52,6 +53,7 @@ export function SubmitTournamentForm({
     contact_phone: '',
     contact_email: '',
     district_id: '',
+    poster_url: '',
   });
 
   const updateField = (field: string, value: any) => {
@@ -72,7 +74,7 @@ export function SubmitTournamentForm({
     contact_name: formData.contact_name || null,
     contact_phone: formData.contact_phone || null,
     contact_email: formData.contact_email || null,
-    poster_url: null,
+    poster_url: formData.poster_url || null,
     description: formData.description || null,
     rounds: parseInt(formData.rounds) || 5,
     organizer_id: userId,
@@ -310,6 +312,22 @@ export function SubmitTournamentForm({
                 />
                 <Label>FIDE/CHESSA Rated Tournament</Label>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Poster Image */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Tournament Poster (Optional)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MediaUpload
+                label="Upload Tournament Poster"
+                onUpload={(url) => updateField('poster_url', url)}
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Upload a poster or featured image for your tournament.
+              </p>
             </CardContent>
           </Card>
 

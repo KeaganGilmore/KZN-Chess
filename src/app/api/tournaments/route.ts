@@ -41,8 +41,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
   const supabase = createServerClient();
+
+  // Check if user is banned
+  const { data: userData } = await supabase
+    .from('users')
+    .select('is_active')
+    .eq('id', user.id)
+    .single();
+
+  if (!userData?.is_active) {
+    return NextResponse.json({ error: 'Your account has been suspended' }, { status: 403 });
+  }
+
+  const body = await request.json();
 
   const { data, error } = await supabase
     .from('tournaments')
@@ -65,6 +77,7 @@ export async function POST(request: NextRequest) {
       contact_name: body.contact_name || null,
       contact_phone: body.contact_phone || null,
       contact_email: body.contact_email || null,
+      poster_url: body.poster_url || null,
       district_id: body.district_id,
       organizer_id: user.id,
       status: 'pending',
