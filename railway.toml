@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm run build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static"
+buildCommand = "npm run build && cp -r public .next/standalone/public 2>/dev/null; cp -r .next/static .next/standalone/.next/static"
 
 [deploy]
 startCommand = "PORT=${PORT:-3000} node .next/standalone/server.js"
