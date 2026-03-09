@@ -25,12 +25,33 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const user = await getCurrentUser();
-  if (!user || user.role !== 'admin') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const supabase = createServerClient();
+  const isAdmin = user.role === 'admin';
+
+  // Check if user is the tournament owner (non-admins only)
+  if (!isAdmin) {
+    const { data: tournament } = await supabase
+      .from('tournaments')
+      .select('organizer_id')
+      .eq('id', params.id)
+      .single();
+
+    if (!tournament || tournament.organizer_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
   }
 
   const body = await request.json();
-  const supabase = createServerClient();
+
+  // Non-admin owners cannot change status or verification
+  if (!isAdmin) {
+    delete body.status;
+    delete body.is_verified;
+  }
 
   const { data, error } = await supabase
     .from('tournaments')
@@ -43,15 +64,17 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Log the action
-  await supabase.from('audit_logs').insert({
-    admin_id: user.id,
-    admin_email: user.email,
-    action: `tournament_${body.status || 'updated'}`,
-    entity_type: 'tournament',
-    entity_id: params.id,
-    details: body,
-  });
+  // Log admin actions
+  if (isAdmin) {
+    await supabase.from('audit_logs').insert({
+      admin_id: user.id,
+      admin_email: user.email,
+      action: `tournament_${body.status || 'updated'}`,
+      entity_type: 'tournament',
+      entity_id: params.id,
+      details: body,
+    });
+  }
 
   return NextResponse.json(data);
 }

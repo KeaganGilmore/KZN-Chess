@@ -7,14 +7,14 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================
 -- ENUM TYPES
 -- ============================================
-CREATE TYPE user_role AS ENUM ('player', 'organizer', 'admin');
-CREATE TYPE tournament_status AS ENUM ('pending', 'approved', 'rejected', 'featured');
-CREATE TYPE time_control_type AS ENUM ('classical', 'rapid', 'blitz', 'bullet');
+DO $$ BEGIN CREATE TYPE user_role AS ENUM ('player', 'organizer', 'admin'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE tournament_status AS ENUM ('pending', 'approved', 'rejected', 'featured'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE time_control_type AS ENUM ('classical', 'rapid', 'blitz', 'bullet'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- ============================================
 -- DISTRICTS TABLE
 -- ============================================
-CREATE TABLE districts (
+CREATE TABLE IF NOT EXISTS districts (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
   region TEXT,
@@ -29,7 +29,7 @@ CREATE TABLE districts (
 -- ============================================
 -- USERS TABLE
 -- ============================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL,
@@ -41,13 +41,13 @@ CREATE TABLE users (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 
 -- ============================================
 -- TOURNAMENTS TABLE
 -- ============================================
-CREATE TABLE tournaments (
+CREATE TABLE IF NOT EXISTS tournaments (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
@@ -76,14 +76,14 @@ CREATE TABLE tournaments (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_tournaments_date ON tournaments(date);
-CREATE INDEX idx_tournaments_status ON tournaments(status);
-CREATE INDEX idx_tournaments_district ON tournaments(district_id);
+CREATE INDEX IF NOT EXISTS idx_tournaments_date ON tournaments(date);
+CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status);
+CREATE INDEX IF NOT EXISTS idx_tournaments_district ON tournaments(district_id);
 
 -- ============================================
 -- ANNOUNCEMENTS TABLE
 -- ============================================
-CREATE TABLE announcements (
+CREATE TABLE IF NOT EXISTS announcements (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   title TEXT NOT NULL,
   content TEXT NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE announcements (
 -- ============================================
 -- SITE CONTENT TABLE (CMS)
 -- ============================================
-CREATE TABLE site_content (
+CREATE TABLE IF NOT EXISTS site_content (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   key TEXT NOT NULL UNIQUE,
   value JSONB NOT NULL DEFAULT '{}',
@@ -109,7 +109,7 @@ CREATE TABLE site_content (
 -- ============================================
 -- AUDIT LOGS TABLE
 -- ============================================
-CREATE TABLE audit_logs (
+CREATE TABLE IF NOT EXISTS audit_logs (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   admin_id UUID REFERENCES users(id),
   admin_email TEXT,
@@ -120,13 +120,13 @@ CREATE TABLE audit_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_audit_logs_admin ON audit_logs(admin_id);
-CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_admin ON audit_logs(admin_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at);
 
 -- ============================================
 -- TOURNAMENT MEDIA TABLE
 -- ============================================
-CREATE TABLE tournament_media (
+CREATE TABLE IF NOT EXISTS tournament_media (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE NOT NULL,
   uploaded_by UUID REFERENCES users(id) NOT NULL,
@@ -136,12 +136,12 @@ CREATE TABLE tournament_media (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_tournament_media_tournament ON tournament_media(tournament_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_media_tournament ON tournament_media(tournament_id);
 
 -- ============================================
 -- TOURNAMENT COMMENTS TABLE
 -- ============================================
-CREATE TABLE tournament_comments (
+CREATE TABLE IF NOT EXISTS tournament_comments (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE NOT NULL,
   user_id UUID REFERENCES users(id) NOT NULL,
@@ -150,12 +150,12 @@ CREATE TABLE tournament_comments (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_tournament_comments_tournament ON tournament_comments(tournament_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_comments_tournament ON tournament_comments(tournament_id);
 
 -- ============================================
 -- TOURNAMENT LIKES TABLE
 -- ============================================
-CREATE TABLE tournament_likes (
+CREATE TABLE IF NOT EXISTS tournament_likes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE NOT NULL,
   user_id UUID REFERENCES users(id) NOT NULL,
@@ -163,8 +163,8 @@ CREATE TABLE tournament_likes (
   UNIQUE(tournament_id, user_id)
 );
 
-CREATE INDEX idx_tournament_likes_tournament ON tournament_likes(tournament_id);
-CREATE INDEX idx_tournament_likes_user ON tournament_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_likes_tournament ON tournament_likes(tournament_id);
+CREATE INDEX IF NOT EXISTS idx_tournament_likes_user ON tournament_likes(user_id);
 
 -- ============================================
 -- ROW LEVEL SECURITY POLICIES
@@ -269,8 +269,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_districts_updated_at ON districts;
 CREATE TRIGGER update_districts_updated_at BEFORE UPDATE ON districts FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DROP TRIGGER IF EXISTS update_tournaments_updated_at ON tournaments;
 CREATE TRIGGER update_tournaments_updated_at BEFORE UPDATE ON tournaments FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DROP TRIGGER IF EXISTS update_announcements_updated_at ON announcements;
 CREATE TRIGGER update_announcements_updated_at BEFORE UPDATE ON announcements FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DROP TRIGGER IF EXISTS update_comments_updated_at ON tournament_comments;
 CREATE TRIGGER update_comments_updated_at BEFORE UPDATE ON tournament_comments FOR EACH ROW EXECUTE FUNCTION update_updated_at();

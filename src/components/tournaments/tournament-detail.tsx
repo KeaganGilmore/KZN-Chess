@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Calendar,
   Clock,
@@ -20,6 +21,7 @@ import {
   Share2,
   Copy,
   MessageCircle,
+  Pencil,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,9 +36,11 @@ import type { Tournament } from '@/lib/types';
 export function TournamentDetail({
   tournament,
   related,
+  canEdit,
 }: {
   tournament: Tournament;
   related: Tournament[];
+  canEdit?: boolean;
 }) {
   const { toast } = useToast();
   const isFeatured = tournament.status === 'featured';
@@ -128,7 +132,17 @@ export function TournamentDetail({
                 )}
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-bold">{tournament.name}</h1>
+              <div className="flex items-start gap-3">
+                <h1 className="text-3xl sm:text-4xl font-bold">{tournament.name}</h1>
+                {canEdit && (
+                  <Link href={`/tournaments/${tournament.id}/edit`}>
+                    <Button variant="outline" size="sm" className="gap-1.5 shrink-0 mt-1">
+                      <Pencil className="w-3.5 h-3.5" />
+                      Edit
+                    </Button>
+                  </Link>
+                )}
+              </div>
 
               {tournament.district && (
                 <p className="text-muted-foreground">

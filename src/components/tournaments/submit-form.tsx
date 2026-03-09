@@ -25,35 +25,38 @@ import type { District, Tournament } from '@/lib/types';
 export function SubmitTournamentForm({
   districts,
   userId,
+  tournament,
 }: {
   districts: District[];
   userId: string;
+  tournament?: Tournament;
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState('edit');
+  const isEditMode = !!tournament;
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    date: '',
-    end_date: '',
-    start_time: '',
-    venue: '',
-    venue_address: '',
-    maps_link: '',
-    time_control: 'rapid' as const,
-    time_control_detail: '',
-    rounds: '5',
-    entry_fee: '',
-    prizes: '',
-    is_rated: false,
-    registration_procedure: '',
-    contact_name: '',
-    contact_phone: '',
-    contact_email: '',
-    district_id: '',
-    poster_url: '',
+    name: tournament?.name || '',
+    description: tournament?.description || '',
+    date: tournament?.date || '',
+    end_date: tournament?.end_date || '',
+    start_time: tournament?.start_time?.slice(0, 5) || '',
+    venue: tournament?.venue || '',
+    venue_address: tournament?.venue_address || '',
+    maps_link: tournament?.maps_link || '',
+    time_control: tournament?.time_control || 'rapid' as const,
+    time_control_detail: tournament?.time_control_detail || '',
+    rounds: String(tournament?.rounds || 5),
+    entry_fee: tournament?.entry_fee || '',
+    prizes: tournament?.prizes || '',
+    is_rated: tournament?.is_rated || false,
+    registration_procedure: tournament?.registration_procedure || '',
+    contact_name: tournament?.contact_name || '',
+    contact_phone: tournament?.contact_phone || '',
+    contact_email: tournament?.contact_email || '',
+    district_id: tournament?.district_id || '',
+    poster_url: tournament?.poster_url || '',
   });
 
   const updateField = (field: string, value: any) => {
@@ -97,13 +100,16 @@ export function SubmitTournamentForm({
 
     setLoading(true);
     try {
-      const res = await fetch('/api/tournaments', {
-        method: 'POST',
+      const url = isEditMode
+        ? `/api/tournaments/${tournament.id}`
+        : '/api/tournaments';
+      const res = await fetch(url, {
+        method: isEditMode ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
           rounds: parseInt(formData.rounds) || 5,
-          organizer_id: userId,
+          ...(isEditMode ? {} : { organizer_id: userId }),
         }),
       });
 
@@ -113,13 +119,15 @@ export function SubmitTournamentForm({
       }
 
       toast({
-        title: 'Tournament submitted!',
-        description: 'Your tournament is pending admin approval.',
+        title: isEditMode ? 'Tournament updated!' : 'Tournament submitted!',
+        description: isEditMode
+          ? 'Your changes have been saved.'
+          : 'Your tournament is pending admin approval.',
       });
-      router.push('/tournaments');
+      router.push(isEditMode ? `/tournaments/${tournament.id}` : '/tournaments');
     } catch (err: any) {
       toast({
-        title: 'Submission failed',
+        title: isEditMode ? 'Update failed' : 'Submission failed',
         description: err.message,
         variant: 'destructive',
       });
@@ -385,7 +393,7 @@ export function SubmitTournamentForm({
             ) : (
               <Send className="w-4 h-4 mr-2" />
             )}
-            Submit for Approval
+            {isEditMode ? 'Save Changes' : 'Submit for Approval'}
           </Button>
         </div>
       </TabsContent>
@@ -411,7 +419,7 @@ export function SubmitTournamentForm({
             className="bg-primary text-primary-foreground font-semibold hover:bg-primary/90"
           >
             {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Submit for Approval
+            {isEditMode ? 'Save Changes' : 'Submit for Approval'}
           </Button>
         </div>
       </TabsContent>

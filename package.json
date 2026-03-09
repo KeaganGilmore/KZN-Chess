@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:migrate": "bash scripts/migrate.sh",
+    "db:seed": "bash scripts/seed.sh"
   },
   "dependencies": {
     "@next-auth/supabase-adapter": "^0.2.1",

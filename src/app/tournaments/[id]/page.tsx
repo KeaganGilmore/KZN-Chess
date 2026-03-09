@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
 import { TournamentDetail } from '@/components/tournaments/tournament-detail';
 import { PageTransition } from '@/components/ui/page-transition';
 import type { Tournament } from '@/lib/types';
@@ -55,14 +56,21 @@ export default async function TournamentPage({
 }: {
   params: { id: string };
 }) {
-  const data = await getData(params.id);
+  const [data, user] = await Promise.all([
+    getData(params.id),
+    getCurrentUser(),
+  ]);
   if (!data) notFound();
+
+  const canEdit =
+    user?.role === 'admin' || user?.id === data.tournament.organizer_id;
 
   return (
     <PageTransition>
       <TournamentDetail
         tournament={data.tournament}
         related={data.related}
+        canEdit={canEdit}
       />
     </PageTransition>
   );
