@@ -26,8 +26,8 @@ export function TournamentGallery({
 
   useEffect(() => {
     fetch(`/api/tournaments/${tournamentId}/media`)
-      .then((r) => r.json())
-      .then(setMedia)
+      .then((r) => r.ok ? r.json() : [])
+      .then((d) => { if (Array.isArray(d)) setMedia(d); })
       .catch(() => {});
   }, [tournamentId]);
 

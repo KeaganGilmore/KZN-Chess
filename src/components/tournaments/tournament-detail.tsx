@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -42,7 +43,10 @@ export function TournamentDetail({
   const isEndorsed = isFeatured || tournament.is_verified;
   const isPending = tournament.status === 'pending';
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const [shareUrl, setShareUrl] = useState('');
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
   const shareText = `${tournament.name} - ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}`;
 
   const handleCopyLink = () => {
@@ -55,7 +59,10 @@ export function TournamentDetail({
     window.open(url, '_blank');
   };
 
-  const isPast = new Date(tournament.end_date || tournament.date) < new Date();
+  const [isPast, setIsPast] = useState(false);
+  useEffect(() => {
+    setIsPast(new Date(tournament.end_date || tournament.date) < new Date());
+  }, [tournament.date, tournament.end_date]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

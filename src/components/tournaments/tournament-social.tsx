@@ -27,15 +27,15 @@ export function TournamentSocial({ tournamentId }: { tournamentId: string }) {
 
   useEffect(() => {
     fetch(`/api/tournaments/${tournamentId}/comments`)
-      .then((r) => r.json())
-      .then(setComments)
+      .then((r) => r.ok ? r.json() : [])
+      .then((d) => { if (Array.isArray(d)) setComments(d); })
       .catch(() => {});
 
     fetch(`/api/tournaments/${tournamentId}/likes`)
-      .then((r) => r.json())
+      .then((r) => r.ok ? r.json() : { count: 0, userLiked: false })
       .then((d) => {
-        setLikeCount(d.count);
-        setUserLiked(d.userLiked);
+        setLikeCount(d.count || 0);
+        setUserLiked(d.userLiked || false);
       })
       .catch(() => {});
   }, [tournamentId]);
