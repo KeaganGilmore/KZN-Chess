@@ -47,12 +47,16 @@ export function TournamentBrowser({
       return true;
     });
 
-    // Prioritize endorsed (featured/verified) tournaments
+    // Prioritize: featured/verified > approved > pending
     return results.sort((a, b) => {
-      const aEndorsed = a.status === 'featured' || a.is_verified ? 1 : 0;
-      const bEndorsed = b.status === 'featured' || b.is_verified ? 1 : 0;
-      if (bEndorsed !== aEndorsed) return bEndorsed - aEndorsed;
-      return 0; // preserve date ordering from server for equal endorsement
+      const rank = (t: typeof results[0]) => {
+        if (t.status === 'featured' || t.is_verified) return 2;
+        if (t.status === 'approved') return 1;
+        return 0; // pending
+      };
+      const diff = rank(b) - rank(a);
+      if (diff !== 0) return diff;
+      return 0; // preserve date ordering from server
     });
   }, [tournaments, search, districtFilter, ratedFilter]);
 

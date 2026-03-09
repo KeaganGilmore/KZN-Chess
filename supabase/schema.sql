@@ -193,9 +193,9 @@ CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
--- Tournaments: approved visible to all, organizers see own, admins see all
+-- Tournaments: approved and pending visible to all, organizers see own, admins see all
 CREATE POLICY "Approved tournaments viewable by all" ON tournaments FOR SELECT USING (
-  status IN ('approved', 'featured')
+  status IN ('approved', 'featured', 'pending')
 );
 CREATE POLICY "Organizers can view own tournaments" ON tournaments FOR SELECT USING (
   organizer_id = auth.uid()

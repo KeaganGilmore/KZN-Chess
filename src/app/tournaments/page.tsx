@@ -18,7 +18,7 @@ async function getData() {
       supabase
         .from('tournaments')
         .select('*, district:districts(*)')
-        .in('status', ['approved', 'featured'])
+        .in('status', ['approved', 'featured', 'pending'])
         .order('date', { ascending: true }),
       supabase.from('districts').select('*').eq('is_active', true).order('name'),
     ]);

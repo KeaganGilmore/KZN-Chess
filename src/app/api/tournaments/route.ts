@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   } else if (status) {
     query = query.eq('status', status);
   } else {
-    query = query.in('status', ['approved', 'featured']);
+    query = query.in('status', ['approved', 'featured', 'pending']);
   }
 
   const { data, error } = await query;

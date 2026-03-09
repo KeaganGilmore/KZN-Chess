@@ -9,6 +9,7 @@ import {
   MapPin,
   Users,
   ShieldCheck,
+  ShieldAlert,
   Star,
   Banknote,
   Trophy,
@@ -39,6 +40,7 @@ export function TournamentDetail({
   const { toast } = useToast();
   const isFeatured = tournament.status === 'featured';
   const isEndorsed = isFeatured || tournament.is_verified;
+  const isPending = tournament.status === 'pending';
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   const shareText = `${tournament.name} - ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}`;
@@ -95,6 +97,11 @@ export function TournamentDetail({
                   <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 gap-1">
                     <ShieldCheck className="w-3 h-3" />
                     Officially Endorsed
+                  </Badge>
+                ) : isPending ? (
+                  <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-400 gap-1">
+                    <ShieldAlert className="w-3 h-3" />
+                    Not yet vetted
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="bg-muted text-muted-foreground">

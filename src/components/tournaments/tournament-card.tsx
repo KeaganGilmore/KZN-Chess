@@ -10,6 +10,7 @@ import {
   Users,
   BadgeCheck,
   ShieldCheck,
+  ShieldAlert,
   Star,
   Banknote,
   MessageCircle,
@@ -37,6 +38,7 @@ export function TournamentCard({
 }) {
   const isFeatured = featured || tournament.status === 'featured';
   const isEndorsed = isFeatured || tournament.is_verified;
+  const isPending = tournament.status === 'pending';
 
   const whatsappText = encodeURIComponent(
     `Check out this chess tournament: ${tournament.name} on ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}. More info at kznchess.co.za/tournaments/${tournament.id}`
@@ -86,6 +88,14 @@ export function TournamentCard({
                   >
                     <ShieldCheck className="w-3 h-3" />
                     Officially Endorsed
+                  </Badge>
+                ) : isPending ? (
+                  <Badge
+                    variant="outline"
+                    className="text-xs bg-amber-500/10 text-amber-400 border-amber-500/20 gap-1"
+                  >
+                    <ShieldAlert className="w-3 h-3" />
+                    Not yet vetted
                   </Badge>
                 ) : (
                   <Badge

@@ -29,7 +29,7 @@ async function getData(id: string) {
     .from('tournaments')
     .select('*, district:districts(*), organizer:users(id, name, email)')
     .eq('id', id)
-    .in('status', ['approved', 'featured'])
+    .in('status', ['approved', 'featured', 'pending'])
     .single();
 
   if (!tournament) return null;
@@ -39,7 +39,7 @@ async function getData(id: string) {
     .select('*, district:districts(*)')
     .eq('district_id', tournament.district_id)
     .neq('id', id)
-    .in('status', ['approved', 'featured'])
+    .in('status', ['approved', 'featured', 'pending'])
     .gte('date', new Date().toISOString().split('T')[0])
     .order('date', { ascending: true })
     .limit(3);
