@@ -179,81 +179,106 @@ ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Districts: readable by all, writable by admin
+DROP POLICY IF EXISTS "Districts are viewable by everyone" ON districts;
 CREATE POLICY "Districts are viewable by everyone" ON districts FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Districts are editable by admins" ON districts;
 CREATE POLICY "Districts are editable by admins" ON districts FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
 -- Users: self-read + admin full access
+DROP POLICY IF EXISTS "Users can view own profile" ON users;
 CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Admins can view all users" ON users;
 CREATE POLICY "Admins can view all users" ON users FOR SELECT USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
+DROP POLICY IF EXISTS "Admins can update users" ON users;
 CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
 -- Tournaments: approved and pending visible to all, organizers see own, admins see all
+DROP POLICY IF EXISTS "Approved tournaments viewable by all" ON tournaments;
 CREATE POLICY "Approved tournaments viewable by all" ON tournaments FOR SELECT USING (
   status IN ('approved', 'featured', 'pending')
 );
+DROP POLICY IF EXISTS "Organizers can view own tournaments" ON tournaments;
 CREATE POLICY "Organizers can view own tournaments" ON tournaments FOR SELECT USING (
   organizer_id = auth.uid()
 );
+DROP POLICY IF EXISTS "Authenticated users can insert tournaments" ON tournaments;
 CREATE POLICY "Authenticated users can insert tournaments" ON tournaments FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
 );
+DROP POLICY IF EXISTS "Admins can manage all tournaments" ON tournaments;
 CREATE POLICY "Admins can manage all tournaments" ON tournaments FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
 -- Announcements: active visible to all, admins manage
+DROP POLICY IF EXISTS "Active announcements viewable by all" ON announcements;
 CREATE POLICY "Active announcements viewable by all" ON announcements FOR SELECT USING (
   is_active = true AND (end_date IS NULL OR end_date > NOW())
 );
+DROP POLICY IF EXISTS "Admins manage announcements" ON announcements;
 CREATE POLICY "Admins manage announcements" ON announcements FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
 -- Site content: readable by all, writable by admin
+DROP POLICY IF EXISTS "Site content viewable by all" ON site_content;
 CREATE POLICY "Site content viewable by all" ON site_content FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Admins manage site content" ON site_content;
 CREATE POLICY "Admins manage site content" ON site_content FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
 -- Tournament media: viewable by all, insertable by authenticated users, manageable by admins
 ALTER TABLE tournament_media ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Media viewable by all" ON tournament_media;
 CREATE POLICY "Media viewable by all" ON tournament_media FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Authenticated users can upload media" ON tournament_media;
 CREATE POLICY "Authenticated users can upload media" ON tournament_media FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
 );
+DROP POLICY IF EXISTS "Admins manage media" ON tournament_media;
 CREATE POLICY "Admins manage media" ON tournament_media FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
 -- Tournament comments: viewable by all, insertable by authenticated users
 ALTER TABLE tournament_comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Comments viewable by all" ON tournament_comments;
 CREATE POLICY "Comments viewable by all" ON tournament_comments FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Authenticated users can comment" ON tournament_comments;
 CREATE POLICY "Authenticated users can comment" ON tournament_comments FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
 );
+DROP POLICY IF EXISTS "Users can delete own comments" ON tournament_comments;
 CREATE POLICY "Users can delete own comments" ON tournament_comments FOR DELETE USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "Admins manage comments" ON tournament_comments;
 CREATE POLICY "Admins manage comments" ON tournament_comments FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
 
 -- Tournament likes: viewable by all, authenticated users can toggle
 ALTER TABLE tournament_likes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Likes viewable by all" ON tournament_likes;
 CREATE POLICY "Likes viewable by all" ON tournament_likes FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Authenticated users can like" ON tournament_likes;
 CREATE POLICY "Authenticated users can like" ON tournament_likes FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid())
 );
+DROP POLICY IF EXISTS "Users can remove own likes" ON tournament_likes;
 CREATE POLICY "Users can remove own likes" ON tournament_likes FOR DELETE USING (user_id = auth.uid());
 
 -- Audit logs: admin only
+DROP POLICY IF EXISTS "Admins can view audit logs" ON audit_logs;
 CREATE POLICY "Admins can view audit logs" ON audit_logs FOR SELECT USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );
+DROP POLICY IF EXISTS "Admins can insert audit logs" ON audit_logs;
 CREATE POLICY "Admins can insert audit logs" ON audit_logs FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin')
 );

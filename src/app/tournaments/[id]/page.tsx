@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
-import { TournamentDetail } from '@/components/tournaments/tournament-detail';
+import { TournamentPageTabs } from '@/components/tournaments/tournament-page-tabs';
 import { PageTransition } from '@/components/ui/page-transition';
 import type { Tournament } from '@/lib/types';
 
@@ -51,6 +51,20 @@ async function getData(id: string) {
   };
 }
 
+async function checkManageAccess(tournamentId: string, userId: string): Promise<boolean> {
+  const supabase = createServerClient();
+
+  // Check tournament_arbiters
+  const { data: arbiter } = await supabase
+    .from('tournament_arbiters')
+    .select('id')
+    .eq('tournament_id', tournamentId)
+    .eq('user_id', userId)
+    .single();
+
+  return !!arbiter;
+}
+
 export default async function TournamentPage({
   params,
 }: {
@@ -62,15 +76,22 @@ export default async function TournamentPage({
   ]);
   if (!data) notFound();
 
-  const canEdit =
-    user?.role === 'admin' || user?.id === data.tournament.organizer_id;
+  const isAdmin = user?.role === 'admin';
+  const isOrganizer = user?.id === data.tournament.organizer_id;
+  const canEdit = isAdmin || isOrganizer;
+
+  let canManage = isAdmin || isOrganizer;
+  if (user && !canManage) {
+    canManage = await checkManageAccess(params.id, user.id);
+  }
 
   return (
     <PageTransition>
-      <TournamentDetail
+      <TournamentPageTabs
         tournament={data.tournament}
         related={data.related}
         canEdit={canEdit}
+        canManage={canManage}
       />
     </PageTransition>
   );
