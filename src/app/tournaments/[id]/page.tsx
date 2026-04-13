@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { TournamentPageTabs } from '@/components/tournaments/tournament-page-tabs';
 import { PageTransition } from '@/components/ui/page-transition';
+import { AdUnit } from '@/components/ads/ad-unit';
 import type { Tournament } from '@/lib/types';
 
 export const revalidate = 0;
@@ -92,6 +93,11 @@ export default async function TournamentPage({
         related={data.related}
         canEdit={canEdit}
         canManage={canManage}
+      />
+      <AdUnit
+        slot="TOURNAMENT_DETAIL"
+        format="horizontal"
+        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
       />
     </PageTransition>
   );

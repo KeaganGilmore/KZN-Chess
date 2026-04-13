@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { TournamentBrowser } from '@/components/tournaments/tournament-browser';
 import { PageTransition } from '@/components/ui/page-transition';
+import { AdUnit } from '@/components/ads/ad-unit';
 import type { Tournament, District } from '@/lib/types';
 
 export const revalidate = 0;
@@ -47,6 +48,11 @@ export default async function TournamentsPage() {
           </p>
         </div>
         <TournamentBrowser tournaments={tournaments} districts={districts} />
+        <AdUnit
+          slot="TOURNAMENT_LIST"
+          format="horizontal"
+          className="mt-8"
+        />
       </div>
     </PageTransition>
   );
