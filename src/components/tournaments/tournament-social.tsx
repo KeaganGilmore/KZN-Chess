@@ -26,18 +26,18 @@ export function TournamentSocial({ tournamentId }: { tournamentId: string }) {
   const [liking, setLiking] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/tournaments/${tournamentId}/comments`)
-      .then((r) => r.ok ? r.json() : [])
-      .then((d) => { if (Array.isArray(d)) setComments(d); })
-      .catch(() => {});
-
-    fetch(`/api/tournaments/${tournamentId}/likes`)
-      .then((r) => r.ok ? r.json() : { count: 0, userLiked: false })
-      .then((d) => {
-        setLikeCount(d.count || 0);
-        setUserLiked(d.userLiked || false);
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch(`/api/tournaments/${tournamentId}/comments`)
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => []),
+      fetch(`/api/tournaments/${tournamentId}/likes`)
+        .then((r) => (r.ok ? r.json() : { count: 0, userLiked: false }))
+        .catch(() => ({ count: 0, userLiked: false })),
+    ]).then(([commentsData, likesData]) => {
+      if (Array.isArray(commentsData)) setComments(commentsData);
+      setLikeCount(likesData.count || 0);
+      setUserLiked(likesData.userLiked || false);
+    });
   }, [tournamentId]);
 
   const handleLike = async () => {

@@ -4,7 +4,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { AdUnit } from '@/components/ads/ad-unit';
 import type { Tournament, District } from '@/lib/types';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 export const metadata = {
   title: 'Tournaments - KZN Chess',

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Printer } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import type { TournamentPlayer, TournamentRound, TournamentPairing } from '@/lib/types';
 
 interface CrosstableViewProps {
@@ -22,27 +24,26 @@ export function CrosstableView({ tournamentId, onPlayerClick }: CrosstableViewPr
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [standingsRes, playersRes, roundsRes] = await Promise.all([
+        const [standingsRes, roundsRes] = await Promise.all([
           fetch(`/api/tournaments/${tournamentId}/standings`),
-          fetch(`/api/tournaments/${tournamentId}/players`),
           fetch(`/api/tournaments/${tournamentId}/rounds`),
         ]);
 
-        if (!standingsRes.ok || !playersRes.ok || !roundsRes.ok) return;
+        if (!standingsRes.ok || !roundsRes.ok) return;
 
         const standingsData = await standingsRes.json();
-        await playersRes.json(); // consume response
         const rounds: TournamentRound[] = await roundsRes.json();
 
-        // Fetch all pairings for all rounds
-        const allPairings: TournamentPairing[] = [];
-        for (const round of rounds) {
-          const pRes = await fetch(`/api/tournaments/${tournamentId}/rounds/${round.id}/pairings`);
-          if (pRes.ok) {
+        // Fetch all rounds' pairings concurrently
+        const pairingsPerRound = await Promise.all(
+          rounds.map(async (round) => {
+            const pRes = await fetch(`/api/tournaments/${tournamentId}/rounds/${round.id}/pairings`);
+            if (!pRes.ok) return [];
             const pairings = await pRes.json();
-            allPairings.push(...pairings.map((p: TournamentPairing) => ({ ...p, _round: round.round_number })));
-          }
-        }
+            return pairings.map((p: TournamentPairing) => ({ ...p, _round: round.round_number }));
+          })
+        );
+        const allPairings: TournamentPairing[] = pairingsPerRound.flat();
 
         const standings = standingsData.standings || [];
 
@@ -86,7 +87,19 @@ export function CrosstableView({ tournamentId, onPlayerClick }: CrosstableViewPr
   if (rows.length === 0) return <div className="py-8 text-center text-muted-foreground">No data yet.</div>;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => window.open(`/tournaments/${tournamentId}/print/crosstable`, '_blank')}
+        >
+          <Printer className="w-3.5 h-3.5" />
+          Print / PDF
+        </Button>
+      </div>
+      <div className="overflow-x-auto">
       <table className="text-xs border-collapse">
         <thead>
           <tr className="border-b-2 border-border">
@@ -139,6 +152,7 @@ export function CrosstableView({ tournamentId, onPlayerClick }: CrosstableViewPr
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

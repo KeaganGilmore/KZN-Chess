@@ -10,6 +10,7 @@ import {
   LogOut,
   User,
   ChevronDown,
+  PlusCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,6 +35,9 @@ export function Navbar() {
   const { data: session } = useSession();
 
   const user = session?.user as any;
+  const links = session
+    ? [...navLinks, { href: '/submit', label: 'Submit' }]
+    : navLinks;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border pattern-beadwork">
@@ -56,7 +60,7 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -95,8 +99,14 @@ export function Navbar() {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/submit" className="cursor-pointer">
+                    <Link href="/my-tournaments" className="cursor-pointer">
                       <Trophy className="w-4 h-4 mr-2" />
+                      My Tournaments
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/submit" className="cursor-pointer">
+                      <PlusCircle className="w-4 h-4 mr-2" />
                       Submit Tournament
                     </Link>
                   </DropdownMenuItem>

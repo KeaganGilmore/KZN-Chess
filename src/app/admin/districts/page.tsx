@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
@@ -15,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AdminDistrictsPage() {
@@ -24,6 +24,7 @@ export default function AdminDistrictsPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [editData, setEditData] = useState<any>({});
   const [showAdd, setShowAdd] = useState(false);
+  const [deleting, setDeleting] = useState<any | null>(null);
   const [newDistrict, setNewDistrict] = useState({
     name: '',
     region: '',
@@ -33,18 +34,27 @@ export default function AdminDistrictsPage() {
   });
 
   const fetchDistricts = async () => {
-    const res = await fetch('/api/districts');
-    if (res.ok) {
+    try {
+      const res = await fetch('/api/districts');
+      if (!res.ok) throw new Error();
       setDistricts(await res.json());
+    } catch {
+      toast({ title: 'Failed to load districts', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchDistricts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAdd = async () => {
+    if (!newDistrict.name.trim()) {
+      toast({ title: 'District name is required', variant: 'destructive' });
+      return;
+    }
     const res = await fetch('/api/districts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -55,6 +65,9 @@ export default function AdminDistrictsPage() {
       setShowAdd(false);
       setNewDistrict({ name: '', region: '', coordinator_name: '', coordinator_email: '', coordinator_phone: '' });
       fetchDistricts();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast({ title: data.error || 'Failed to add district', variant: 'destructive' });
     }
   };
 
@@ -68,16 +81,35 @@ export default function AdminDistrictsPage() {
       toast({ title: 'District updated' });
       setEditing(null);
       fetchDistricts();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast({ title: data.error || 'Failed to update district', variant: 'destructive' });
     }
   };
 
   const toggleActive = async (id: string, is_active: boolean) => {
-    await fetch(`/api/districts/${id}`, {
+    const res = await fetch(`/api/districts/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_active }),
     });
+    if (!res.ok) {
+      toast({ title: 'Failed to update district', variant: 'destructive' });
+    }
     fetchDistricts();
+  };
+
+  const handleDelete = async () => {
+    if (!deleting) return;
+    const res = await fetch(`/api/districts/${deleting.id}`, { method: 'DELETE' });
+    if (res.ok) {
+      toast({ title: 'District deleted' });
+      fetchDistricts();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast({ title: data.error || 'Failed to delete district', variant: 'destructive' });
+    }
+    setDeleting(null);
   };
 
   if (loading) {
@@ -232,6 +264,14 @@ export default function AdminDistrictsPage() {
                     >
                       <Pencil className="w-3.5 h-3.5" /> Edit
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setDeleting(d)}
+                      className="gap-1 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    </Button>
                   </div>
                 </>
               )}
@@ -239,6 +279,20 @@ export default function AdminDistrictsPage() {
           </Card>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(o) => !o && setDeleting(null)}
+        title="Delete district?"
+        description={
+          deleting
+            ? `"${deleting.name}" will be permanently removed. Districts with tournaments cannot be deleted — deactivate them instead.`
+            : undefined
+        }
+        confirmLabel="Delete"
+        destructive
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

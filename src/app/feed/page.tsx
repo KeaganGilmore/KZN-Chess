@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { PageTransition } from '@/components/ui/page-transition';
 import { FeedView } from '@/components/feed/feed-view';
 
-export const revalidate = 0;
+export const revalidate = 120;
 
 export const metadata = {
   title: 'Feed - KZN Chess',

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Loader2, UserCheck, UserX, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -13,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
@@ -21,19 +21,23 @@ export default function AdminOrganizersPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [revoking, setRevoking] = useState<any | null>(null);
 
-  const fetchUsers = async () => {
-    const res = await fetch('/api/users');
-    if (res.ok) {
-      const data = await res.json();
-      setUsers(data);
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await fetch('/api/users');
+      if (!res.ok) throw new Error();
+      setUsers(await res.json());
+    } catch {
+      toast({ title: 'Failed to load users', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const updateRole = async (id: string, role: string) => {
     const res = await fetch(`/api/users/${id}`, {
@@ -44,16 +48,23 @@ export default function AdminOrganizersPage() {
     if (res.ok) {
       toast({ title: `User role updated to ${role}` });
       fetchUsers();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast({ title: data.error || 'Failed to update role', variant: 'destructive' });
     }
   };
 
-  const organizers = users.filter(
-    (u) => u.role === 'organizer' || (search && u.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const matchesSearch = (u: any) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      (u.name || '').toLowerCase().includes(q) ||
+      (u.email || '').toLowerCase().includes(q)
+    );
+  };
 
-  const players = users.filter(
-    (u) => u.role === 'player' && (!search || u.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const organizers = users.filter((u) => u.role === 'organizer' && matchesSearch(u));
+  const players = users.filter((u) => u.role === 'player' && matchesSearch(u));
 
   if (loading) {
     return (
@@ -115,7 +126,7 @@ export default function AdminOrganizersPage() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => updateRole(u.id, 'player')}
+                      onClick={() => setRevoking(u)}
                       className="gap-1"
                     >
                       <UserX className="w-3.5 h-3.5" />
@@ -179,8 +190,30 @@ export default function AdminOrganizersPage() {
               No players found
             </p>
           )}
+          {players.length > 20 && (
+            <p className="text-center py-3 text-xs text-muted-foreground border-t">
+              Showing first 20 of {players.length} players — use search to narrow down
+            </p>
+          )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!revoking}
+        onOpenChange={(o) => !o && setRevoking(null)}
+        title="Revoke organizer access?"
+        description={
+          revoking
+            ? `${revoking.name} will no longer be able to manage tournaments. Their existing tournaments remain.`
+            : undefined
+        }
+        confirmLabel="Revoke"
+        destructive
+        onConfirm={async () => {
+          if (revoking) await updateRole(revoking.id, 'player');
+          setRevoking(null);
+        }}
+      />
     </div>
   );
 }

@@ -30,11 +30,23 @@ export async function POST(
   }
 
   const { url, caption, media_type } = await request.json();
-  if (!url) {
+  if (!url || typeof url !== 'string') {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+  }
+  if (media_type && !['image', 'poster'].includes(media_type)) {
+    return NextResponse.json({ error: 'Invalid media type' }, { status: 400 });
   }
 
   const supabase = createServerClient();
+
+  const { data: tournament } = await supabase
+    .from('tournaments')
+    .select('id')
+    .eq('id', params.id)
+    .single();
+  if (!tournament) {
+    return NextResponse.json({ error: 'Tournament not found' }, { status: 404 });
+  }
 
   const { data, error } = await supabase
     .from('tournament_media')

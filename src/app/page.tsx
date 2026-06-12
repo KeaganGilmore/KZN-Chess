@@ -6,7 +6,8 @@ import { AnnouncementBanner } from '@/components/home/announcement-banner';
 import { AdUnit } from '@/components/ads/ad-unit';
 import type { Tournament, SiteContent, Announcement } from '@/lib/types';
 
-export const revalidate = 0;
+// Serve cached pages for 60s; tournament/content changes appear within a minute
+export const revalidate = 60;
 
 async function getData() {
   try {
@@ -25,6 +26,8 @@ async function getData() {
         .from('announcements')
         .select('*')
         .eq('is_active', true)
+        .or(`end_date.is.null,end_date.gt.${new Date().toISOString()}`)
+        .lte('start_date', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(1),
     ]);

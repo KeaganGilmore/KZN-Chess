@@ -27,12 +27,12 @@ INSERT INTO districts (id, name, region, coordinator_name, coordinator_email, co
 -- UUID pattern: bb000000-0000-0000-0000-0000000000XX
 -- ============================================
 INSERT INTO users (id, email, name, password_hash, role, district_id) VALUES
-  ('bb000000-0000-0000-0000-000000000001', 'admin@kznchess.co.za', 'KZN Chess Admin', '$2b$10$dummyhashfordevpurposes000000000000000000000000', 'admin', 'aa000000-0000-0000-0000-000000000001'),
-  ('bb000000-0000-0000-0000-000000000002', 'organizer1@kznchess.co.za', 'Sipho Ndlovu', '$2b$10$dummyhashfordevpurposes000000000000000000000000', 'organizer', 'aa000000-0000-0000-0000-000000000001'),
-  ('bb000000-0000-0000-0000-000000000003', 'organizer2@kznchess.co.za', 'Thandi Mkhize', '$2b$10$dummyhashfordevpurposes000000000000000000000000', 'organizer', 'aa000000-0000-0000-0000-000000000002'),
-  ('bb000000-0000-0000-0000-000000000004', 'organizer3@kznchess.co.za', 'James van der Berg', '$2b$10$dummyhashfordevpurposes000000000000000000000000', 'organizer', 'aa000000-0000-0000-0000-000000000003'),
-  ('bb000000-0000-0000-0000-000000000005', 'player1@kznchess.co.za', 'Nomusa Zulu', '$2b$10$dummyhashfordevpurposes000000000000000000000000', 'player', 'aa000000-0000-0000-0000-000000000004'),
-  ('bb000000-0000-0000-0000-000000000006', 'player2@kznchess.co.za', 'David Nkosi', '$2b$10$dummyhashfordevpurposes000000000000000000000000', 'player', 'aa000000-0000-0000-0000-000000000005');
+  ('bb000000-0000-0000-0000-000000000001', 'admin@kznchess.co.za', 'KZN Chess Admin', '$2b$10$rF00gALVYOIMmLarWc8xHezaxB379rtgWGseOkfdiubnFZKSWaQxW', 'admin', 'aa000000-0000-0000-0000-000000000001'),
+  ('bb000000-0000-0000-0000-000000000002', 'organizer1@kznchess.co.za', 'Sipho Ndlovu', '$2b$10$rF00gALVYOIMmLarWc8xHezaxB379rtgWGseOkfdiubnFZKSWaQxW', 'organizer', 'aa000000-0000-0000-0000-000000000001'),
+  ('bb000000-0000-0000-0000-000000000003', 'organizer2@kznchess.co.za', 'Thandi Mkhize', '$2b$10$rF00gALVYOIMmLarWc8xHezaxB379rtgWGseOkfdiubnFZKSWaQxW', 'organizer', 'aa000000-0000-0000-0000-000000000002'),
+  ('bb000000-0000-0000-0000-000000000004', 'organizer3@kznchess.co.za', 'James van der Berg', '$2b$10$rF00gALVYOIMmLarWc8xHezaxB379rtgWGseOkfdiubnFZKSWaQxW', 'organizer', 'aa000000-0000-0000-0000-000000000003'),
+  ('bb000000-0000-0000-0000-000000000005', 'player1@kznchess.co.za', 'Nomusa Zulu', '$2b$10$rF00gALVYOIMmLarWc8xHezaxB379rtgWGseOkfdiubnFZKSWaQxW', 'player', 'aa000000-0000-0000-0000-000000000004'),
+  ('bb000000-0000-0000-0000-000000000006', 'player2@kznchess.co.za', 'David Nkosi', '$2b$10$rF00gALVYOIMmLarWc8xHezaxB379rtgWGseOkfdiubnFZKSWaQxW', 'player', 'aa000000-0000-0000-0000-000000000005');
 
 -- ============================================
 -- SEED TOURNAMENTS (12 total: 8 upcoming + 4 past/completed)

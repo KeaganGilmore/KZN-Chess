@@ -11,17 +11,25 @@ export async function GET(request: NextRequest) {
 
   const supabase = createServerClient();
   const url = new URL(request.url);
-  const limit = parseInt(url.searchParams.get('limit') || '50');
+  const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '50', 10) || 50, 1), 200);
+  const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10) || 0, 0);
+  const entityType = url.searchParams.get('entity_type');
+  const adminEmail = url.searchParams.get('admin_email');
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('audit_logs')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
+
+  if (entityType) query = query.eq('entity_type', entityType);
+  if (adminEmail) query = query.eq('admin_email', adminEmail);
+
+  const { data, error, count } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json({ logs: data, total: count ?? 0 });
 }

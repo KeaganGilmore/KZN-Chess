@@ -14,9 +14,17 @@ export async function PATCH(
   const body = await request.json();
   const supabase = createServerClient();
 
+  const update: Record<string, any> = {};
+  for (const field of ['title', 'content', 'is_active', 'start_date', 'end_date']) {
+    if (field in body) update[field] = body[field];
+  }
+  if (Object.keys(update).length === 0) {
+    return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from('announcements')
-    .update(body)
+    .update(update)
     .eq('id', params.id)
     .select()
     .single();

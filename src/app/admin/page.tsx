@@ -10,34 +10,39 @@ export const metadata = {
 async function getData() {
   const supabase = createServerClient();
 
-  const [tournaments, pending, organizers, logs] = await Promise.all([
-    supabase.from('tournaments').select('id, status, date', { count: 'exact' }),
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+  const [tournaments, pending, organizers, totalUsers, thisMonth, logs] = await Promise.all([
+    supabase.from('tournaments').select('id', { count: 'exact', head: true }),
     supabase
       .from('tournaments')
-      .select('*, district:districts(name), organizer:users(name)')
+      .select('*, district:districts(name), organizer:users(name)', { count: 'exact' })
       .eq('status', 'pending')
       .order('created_at', { ascending: false })
       .limit(5),
-    supabase.from('users').select('id', { count: 'exact' }).eq('role', 'organizer'),
+    supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'organizer'),
+    supabase.from('users').select('id', { count: 'exact', head: true }),
+    supabase
+      .from('tournaments')
+      .select('id', { count: 'exact', head: true })
+      .gte('date', monthStart)
+      .lte('date', monthEnd),
     supabase
       .from('audit_logs')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(10),
+      .limit(5),
   ]);
-
-  const now = new Date();
-  const thisMonth = tournaments.data?.filter((t) => {
-    const d = new Date(t.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }) || [];
 
   return {
     totalTournaments: tournaments.count || 0,
-    pendingCount: pending.data?.length || 0,
+    pendingCount: pending.count || 0,
     pendingTournaments: pending.data || [],
     activeOrganizers: organizers.count || 0,
-    upcomingThisMonth: thisMonth.length,
+    totalUsers: totalUsers.count || 0,
+    upcomingThisMonth: thisMonth.count || 0,
     recentLogs: logs.data || [],
   };
 }

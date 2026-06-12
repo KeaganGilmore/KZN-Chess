@@ -173,9 +173,9 @@ export function AuthForm() {
                   id="reg-password"
                   name="password"
                   type="password"
-                  placeholder="Choose a strong password"
+                  placeholder="Choose a strong password (8+ characters)"
                   required
-                  minLength={6}
+                  minLength={8}
                   className="bg-background/50"
                 />
               </div>

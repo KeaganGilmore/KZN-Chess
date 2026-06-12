@@ -10,7 +10,7 @@ export const metadata = {
   description: 'Learn about KZN Chess and the districts of KwaZulu-Natal.',
 };
 
-export const revalidate = 0;
+export const revalidate = 300;
 
 async function getData() {
   try {

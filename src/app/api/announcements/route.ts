@@ -3,12 +3,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = createServerClient();
-  const { data, error } = await supabase
+  const all = new URL(request.url).searchParams.get('all') === 'true';
+
+  let query = supabase
     .from('announcements')
     .select('*')
     .order('created_at', { ascending: false });
+
+  if (all) {
+    // Full list (including inactive/expired) is admin-only
+    const user = await getCurrentUser();
+    if (!user || user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  } else {
+    query = query
+      .eq('is_active', true)
+      .or(`end_date.is.null,end_date.gt.${new Date().toISOString()}`);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

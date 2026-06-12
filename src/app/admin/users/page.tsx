@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Loader2, Search, Shield, ShieldOff } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -35,18 +36,23 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [banning, setBanning] = useState<any | null>(null);
 
-  const fetchUsers = async () => {
-    const res = await fetch('/api/users');
-    if (res.ok) {
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await fetch('/api/users');
+      if (!res.ok) throw new Error();
       setUsers(await res.json());
+    } catch {
+      toast({ title: 'Failed to load users', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const updateUser = async (id: string, data: any) => {
     const res = await fetch(`/api/users/${id}`, {
@@ -57,13 +63,19 @@ export default function AdminUsersPage() {
     if (res.ok) {
       toast({ title: 'User updated' });
       fetchUsers();
+    } else {
+      const body = await res.json().catch(() => ({}));
+      toast({ title: body.error || 'Failed to update user', variant: 'destructive' });
     }
   };
 
   const filtered = users.filter((u) => {
     if (search) {
       const q = search.toLowerCase();
-      if (!u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) {
+      if (
+        !(u.name || '').toLowerCase().includes(q) &&
+        !(u.email || '').toLowerCase().includes(q)
+      ) {
         return false;
       }
     }
@@ -163,7 +175,9 @@ export default function AdminUsersPage() {
                   <Button
                     size="sm"
                     variant={u.is_active ? 'destructive' : 'outline'}
-                    onClick={() => updateUser(u.id, { is_active: !u.is_active })}
+                    onClick={() =>
+                      u.is_active ? setBanning(u) : updateUser(u.id, { is_active: true })
+                    }
                     className="gap-1"
                   >
                     {u.is_active ? (
@@ -187,6 +201,23 @@ export default function AdminUsersPage() {
           </p>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!banning}
+        onOpenChange={(o) => !o && setBanning(null)}
+        title="Ban this user?"
+        description={
+          banning
+            ? `${banning.name} (${banning.email}) will no longer be able to sign in or submit tournaments.`
+            : undefined
+        }
+        confirmLabel="Ban User"
+        destructive
+        onConfirm={async () => {
+          if (banning) await updateUser(banning.id, { is_active: false });
+          setBanning(null);
+        }}
+      />
     </div>
   );
 }

@@ -1,7 +1,16 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Trophy, Clock, Users, Calendar, ArrowRight } from 'lucide-react';
+import {
+  Trophy,
+  Clock,
+  Users,
+  Calendar,
+  ArrowRight,
+  UserRound,
+  Megaphone,
+  FileText,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +22,7 @@ interface DashboardData {
   pendingCount: number;
   pendingTournaments: any[];
   activeOrganizers: number;
+  totalUsers: number;
   upcomingThisMonth: number;
   recentLogs: any[];
 }
@@ -24,24 +34,35 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
       value: data.totalTournaments,
       icon: Trophy,
       color: 'text-primary',
+      href: '/admin/tournaments',
     },
     {
       label: 'Pending Approvals',
       value: data.pendingCount,
       icon: Clock,
       color: 'text-orange-400',
+      href: '/admin/tournaments',
+    },
+    {
+      label: 'Registered Users',
+      value: data.totalUsers,
+      icon: UserRound,
+      color: 'text-blue-400',
+      href: '/admin/users',
     },
     {
       label: 'Active Organizers',
       value: data.activeOrganizers,
       icon: Users,
-      color: 'text-blue-400',
+      color: 'text-purple-400',
+      href: '/admin/organizers',
     },
     {
       label: 'Events This Month',
       value: data.upcomingThisMonth,
       icon: Calendar,
       color: 'text-green-400',
+      href: '/admin/tournaments',
     },
   ];
 
@@ -55,29 +76,31 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
+            transition={{ delay: i * 0.06 }}
           >
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-3xl font-bold mt-1">{stat.value}</p>
+            <Link href={stat.href}>
+              <Card className="hover:border-primary/30 transition-colors h-full">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      <p className="text-3xl font-bold mt-1">{stat.value}</p>
+                    </div>
+                    <div
+                      className={`w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0 ${stat.color}`}
+                    >
+                      <stat.icon className="w-5 h-5" />
+                    </div>
                   </div>
-                  <div
-                    className={`w-10 h-10 rounded-lg bg-secondary flex items-center justify-center ${stat.color}`}
-                  >
-                    <stat.icon className="w-5 h-5" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           </motion.div>
         ))}
       </div>
@@ -96,8 +119,15 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
             Manage Users
           </Button>
         </Link>
+        <Link href="/admin/announcements">
+          <Button variant="outline" className="gap-2">
+            <Megaphone className="w-4 h-4" />
+            Announcements
+          </Button>
+        </Link>
         <Link href="/admin/content">
           <Button variant="outline" className="gap-2">
+            <FileText className="w-4 h-4" />
             Edit Site Content
           </Button>
         </Link>
@@ -118,9 +148,10 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
             {data.pendingTournaments.length > 0 ? (
               <div className="space-y-3">
                 {data.pendingTournaments.map((t: any) => (
-                  <div
+                  <Link
                     key={t.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-secondary"
+                    href={`/tournaments/${t.id}`}
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary hover:bg-secondary/70 transition-colors"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{t.name}</p>
@@ -131,7 +162,7 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
                     <Badge variant="outline" className="text-orange-400 border-orange-400/30 shrink-0">
                       Pending
                     </Badge>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -155,7 +186,7 @@ export function AdminDashboard({ data }: { data: DashboardData }) {
           <CardContent>
             {data.recentLogs.length > 0 ? (
               <div className="space-y-3">
-                {data.recentLogs.slice(0, 5).map((log: any) => (
+                {data.recentLogs.map((log: any) => (
                   <div key={log.id} className="p-3 rounded-lg bg-secondary">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium capitalize">

@@ -3,7 +3,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import { GalleryBrowser } from '@/components/gallery/gallery-browser';
 import type { Tournament } from '@/lib/types';
 
-export const revalidate = 0;
+export const revalidate = 300;
 
 export const metadata = {
   title: 'Gallery - KZN Chess',

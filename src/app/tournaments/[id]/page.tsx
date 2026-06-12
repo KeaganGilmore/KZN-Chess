@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
@@ -8,23 +9,8 @@ import type { Tournament } from '@/lib/types';
 
 export const revalidate = 0;
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const supabase = createServerClient();
-  const { data } = await supabase
-    .from('tournaments')
-    .select('name, venue, date')
-    .eq('id', params.id)
-    .single();
-
-  if (!data) return { title: 'Tournament - KZN Chess' };
-
-  return {
-    title: `${data.name} - KZN Chess`,
-    description: `${data.name} at ${data.venue} on ${data.date}`,
-  };
-}
-
-async function getData(id: string) {
+// cache() dedupes between generateMetadata and the page render within one request
+const getData = cache(async (id: string) => {
   const supabase = createServerClient();
 
   const { data: tournament } = await supabase
@@ -49,6 +35,17 @@ async function getData(id: string) {
   return {
     tournament: tournament as Tournament,
     related: (related || []) as Tournament[],
+  };
+});
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const data = await getData(params.id);
+  if (!data) return { title: 'Tournament - KZN Chess' };
+
+  const { tournament } = data;
+  return {
+    title: `${tournament.name} - KZN Chess`,
+    description: `${tournament.name} at ${tournament.venue} on ${tournament.date}`,
   };
 }
 

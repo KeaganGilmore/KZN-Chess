@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import {
   Check,
@@ -10,6 +10,8 @@ import {
   Loader2,
   MoreHorizontal,
   Eye,
+  Trash2,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +28,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -35,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
@@ -45,6 +49,14 @@ const statusColors: Record<string, string> = {
   featured: 'bg-primary/10 text-primary border-primary/20',
 };
 
+type Confirmation = {
+  title: string;
+  description: string;
+  confirmLabel: string;
+  destructive?: boolean;
+  action: () => Promise<void>;
+};
+
 export default function AdminTournamentsPage() {
   const { toast } = useToast();
   const [tournaments, setTournaments] = useState<any[]>([]);
@@ -52,43 +64,118 @@ export default function AdminTournamentsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
-  const fetchTournaments = async () => {
-    const res = await fetch('/api/tournaments?all=true');
-    if (res.ok) {
-      const data = await res.json();
-      setTournaments(data);
+  const fetchTournaments = useCallback(async () => {
+    try {
+      const res = await fetch('/api/tournaments?all=true');
+      if (!res.ok) throw new Error();
+      setTournaments(await res.json());
+    } catch {
+      toast({ title: 'Failed to load tournaments', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchTournaments();
-  }, []);
+  }, [fetchTournaments]);
 
-  const updateStatus = async (id: string, status: string) => {
+  const patchTournament = async (id: string, payload: Record<string, any>) => {
     const res = await fetch(`/api/tournaments/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(payload),
     });
-    if (res.ok) {
-      toast({ title: `Tournament ${status}` });
-      fetchTournaments();
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Update failed');
     }
   };
 
+  const updateStatus = async (id: string, status: string) => {
+    try {
+      await patchTournament(id, { status });
+      toast({ title: `Tournament ${status}` });
+      fetchTournaments();
+    } catch (err: any) {
+      toast({ title: err.message, variant: 'destructive' });
+    }
+  };
+
+  const toggleVerified = async (t: any) => {
+    try {
+      await patchTournament(t.id, { is_verified: !t.is_verified });
+      toast({ title: t.is_verified ? 'Endorsement removed' : 'Tournament endorsed' });
+      fetchTournaments();
+    } catch (err: any) {
+      toast({ title: err.message, variant: 'destructive' });
+    }
+  };
+
+  const deleteTournament = async (id: string) => {
+    const res = await fetch(`/api/tournaments/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast({ title: data.error || 'Delete failed', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Tournament deleted' });
+    fetchTournaments();
+  };
+
   const bulkAction = async (status: string) => {
-    for (const id of selected) {
-      await updateStatus(id, status);
+    const ids = Array.from(selected);
+    const results = await Promise.allSettled(ids.map((id) => patchTournament(id, { status })));
+    const failed = results.filter((r) => r.status === 'rejected').length;
+    if (failed > 0) {
+      toast({
+        title: `${ids.length - failed} updated, ${failed} failed`,
+        variant: 'destructive',
+      });
+    } else {
+      toast({ title: `${ids.length} tournament${ids.length !== 1 ? 's' : ''} ${status}` });
     }
     setSelected(new Set());
+    fetchTournaments();
   };
+
+  const confirmReject = (t: any) =>
+    setConfirmation({
+      title: 'Reject tournament?',
+      description: `"${t.name}" will be hidden from public listings. The organizer can still see it.`,
+      confirmLabel: 'Reject',
+      destructive: true,
+      action: () => updateStatus(t.id, 'rejected'),
+    });
+
+  const confirmDelete = (t: any) =>
+    setConfirmation({
+      title: 'Permanently delete tournament?',
+      description: `"${t.name}" and all of its players, rounds, results, media, and comments will be permanently removed. This cannot be undone.`,
+      confirmLabel: 'Delete Forever',
+      destructive: true,
+      action: () => deleteTournament(t.id),
+    });
+
+  const confirmBulkReject = () =>
+    setConfirmation({
+      title: `Reject ${selected.size} tournament${selected.size !== 1 ? 's' : ''}?`,
+      description: 'All selected tournaments will be hidden from public listings.',
+      confirmLabel: 'Reject All',
+      destructive: true,
+      action: () => bulkAction('rejected'),
+    });
 
   const filtered = tournaments.filter((t) => {
     if (search) {
       const q = search.toLowerCase();
-      if (!t.name.toLowerCase().includes(q) && !(t.organizer?.name || '').toLowerCase().includes(q)) {
+      if (
+        !(t.name || '').toLowerCase().includes(q) &&
+        !(t.organizer?.name || '').toLowerCase().includes(q) &&
+        !(t.district?.name || '').toLowerCase().includes(q)
+      ) {
         return false;
       }
     }
@@ -124,7 +211,7 @@ export default function AdminTournamentsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search tournaments or organizers..."
+            placeholder="Search tournaments, organizers, or districts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -151,12 +238,7 @@ export default function AdminTournamentsPage() {
           <Button size="sm" onClick={() => bulkAction('approved')} className="gap-1">
             <Check className="w-3.5 h-3.5" /> Approve
           </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => bulkAction('rejected')}
-            className="gap-1"
-          >
+          <Button size="sm" variant="destructive" onClick={confirmBulkReject} className="gap-1">
             <X className="w-3.5 h-3.5" /> Reject
           </Button>
           <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
@@ -204,7 +286,12 @@ export default function AdminTournamentsPage() {
                   />
                 </TableCell>
                 <TableCell>
-                  <p className="font-medium text-sm">{t.name}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-medium text-sm">{t.name}</p>
+                    {t.is_verified && (
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                   {t.district?.name}
@@ -233,17 +320,23 @@ export default function AdminTournamentsPage() {
                           <Eye className="w-4 h-4 mr-2" /> View
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => updateStatus(t.id, 'approved')}>
                         <Check className="w-4 h-4 mr-2" /> Approve
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => updateStatus(t.id, 'featured')}>
                         <Star className="w-4 h-4 mr-2" /> Feature
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => updateStatus(t.id, 'rejected')}
-                        className="text-destructive"
-                      >
+                      <DropdownMenuItem onClick={() => toggleVerified(t)}>
+                        <ShieldCheck className="w-4 h-4 mr-2" />
+                        {t.is_verified ? 'Remove Endorsement' : 'Endorse'}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => confirmReject(t)} className="text-destructive">
                         <X className="w-4 h-4 mr-2" /> Reject
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => confirmDelete(t)} className="text-destructive">
+                        <Trash2 className="w-4 h-4 mr-2" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -258,6 +351,18 @@ export default function AdminTournamentsPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!confirmation}
+        onOpenChange={(o) => !o && setConfirmation(null)}
+        title={confirmation?.title || ''}
+        description={confirmation?.description}
+        confirmLabel={confirmation?.confirmLabel}
+        destructive={confirmation?.destructive}
+        onConfirm={async () => {
+          await confirmation?.action();
+        }}
+      />
     </div>
   );
 }

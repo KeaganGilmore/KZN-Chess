@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,18 +19,23 @@ export default function AdminContentPage() {
 
   useEffect(() => {
     const fetchContent = async () => {
-      const res = await fetch('/api/content');
-      if (res.ok) {
+      try {
+        const res = await fetch('/api/content');
+        if (!res.ok) throw new Error();
         const data = await res.json();
         const map: Record<string, any> = {};
         data.forEach((item: any) => {
           map[item.key] = item.value;
         });
         setContent(map);
+      } catch {
+        toast({ title: 'Failed to load site content', variant: 'destructive' });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const saveContent = async (key: string) => {
@@ -67,7 +73,12 @@ export default function AdminContentPage() {
       <div>
         <h1 className="text-2xl font-bold">Site Content</h1>
         <p className="text-muted-foreground mt-1">
-          Edit homepage text, stats, announcements, and about page content.
+          Edit homepage text, stats, and about page content. Looking for the home
+          page banner? That moved to{' '}
+          <Link href="/admin/announcements" className="text-primary hover:underline">
+            Announcements
+          </Link>
+          .
         </p>
       </div>
 
@@ -75,7 +86,6 @@ export default function AdminContentPage() {
         <TabsList>
           <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="stats">Stats</TabsTrigger>
-          <TabsTrigger value="announcement">Announcement</TabsTrigger>
           <TabsTrigger value="about">About Page</TabsTrigger>
         </TabsList>
 
@@ -152,55 +162,6 @@ export default function AdminContentPage() {
               <Button onClick={() => saveContent('stats')} disabled={saving} className="gap-2">
                 <Save className="w-4 h-4" />
                 Save Stats
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Announcement */}
-        <TabsContent value="announcement">
-          <Card>
-            <CardHeader>
-              <CardTitle>Announcement Banner</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Banner Text</Label>
-                <Input
-                  value={content.announcement?.text || ''}
-                  onChange={(e) => updateField('announcement', 'text', e.target.value)}
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Start Date</Label>
-                  <Input
-                    type="date"
-                    value={content.announcement?.start_date || ''}
-                    onChange={(e) => updateField('announcement', 'start_date', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>End Date</Label>
-                  <Input
-                    type="date"
-                    value={content.announcement?.end_date || ''}
-                    onChange={(e) => updateField('announcement', 'end_date', e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={content.announcement?.is_active ?? true}
-                  onChange={(e) => updateField('announcement', 'is_active', e.target.checked)}
-                  className="rounded"
-                />
-                <Label>Active</Label>
-              </div>
-              <Button onClick={() => saveContent('announcement')} disabled={saving} className="gap-2">
-                <Save className="w-4 h-4" />
-                Save Announcement
               </Button>
             </CardContent>
           </Card>

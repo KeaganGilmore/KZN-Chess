@@ -14,9 +14,28 @@ export async function PATCH(
   const body = await request.json();
   const supabase = createServerClient();
 
+  const VALID_ROLES = ['player', 'organizer', 'admin'];
   const allowedFields: Record<string, any> = {};
-  if (body.role) allowedFields.role = body.role;
-  if (body.is_active !== undefined) allowedFields.is_active = body.is_active;
+  if (body.role) {
+    if (!VALID_ROLES.includes(body.role)) {
+      return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+    }
+    allowedFields.role = body.role;
+  }
+  if (body.is_active !== undefined) allowedFields.is_active = !!body.is_active;
+  if (body.district_id !== undefined) allowedFields.district_id = body.district_id || null;
+
+  if (Object.keys(allowedFields).length === 0) {
+    return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+  }
+
+  // Admins cannot demote or deactivate their own account
+  if (params.id === user.id && (allowedFields.role === 'player' || allowedFields.role === 'organizer' || allowedFields.is_active === false)) {
+    return NextResponse.json(
+      { error: 'You cannot demote or deactivate your own admin account' },
+      { status: 400 }
+    );
+  }
 
   const { data, error } = await supabase
     .from('users')

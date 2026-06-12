@@ -38,7 +38,8 @@ export function Footer() {
                 { href: '/gallery', label: 'Gallery' },
                 { href: '/feed', label: 'Feed' },
                 { href: '/about', label: 'About' },
-                { href: '/auth', label: 'Sign In' },
+                { href: '/submit', label: 'Submit a Tournament' },
+                { href: '/auth', label: 'Account' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link

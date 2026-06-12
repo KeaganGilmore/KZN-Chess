@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import { hashPassword } from '@/lib/passwords';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const body = await request.json();
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const email = typeof body.email === 'string' ? body.email.toLowerCase().trim() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -12,9 +18,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    if (!EMAIL_RE.test(email)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    }
+
+    if (password.length < 8) {
       return NextResponse.json(
-        { error: 'Password must be at least 6 characters' },
+        { error: 'Password must be at least 8 characters' },
         { status: 400 }
       );
     }
@@ -35,9 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, hash the password with bcrypt
-    // For now, store a simple hash placeholder
-    const password_hash = `$2b$10$dummy_${Buffer.from(password).toString('base64')}`;
+    const password_hash = await hashPassword(password);
 
     const { data, error } = await supabase
       .from('users')
@@ -55,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ user: { id: data.id, email: data.email, name: data.name } });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

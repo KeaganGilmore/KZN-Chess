@@ -1,6 +1,7 @@
 import { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createServerClient } from '@/lib/supabase/server';
+import { hashPassword, verifyPassword } from '@/lib/passwords';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,18 +18,23 @@ export const authOptions: NextAuthOptions = {
         const { data: user, error } = await supabase
           .from('users')
           .select('*')
-          .eq('email', credentials.email)
+          .eq('email', credentials.email.toLowerCase().trim())
           .eq('is_active', true)
           .single();
 
         if (error || !user) return null;
 
-        // In production, use bcrypt.compare(credentials.password, user.password_hash)
-        // For development, accept any password with the dummy hash
-        const isValid = user.password_hash.startsWith('$2b$10$dummy') ||
-          credentials.password === 'password123';
+        const { valid, needsUpgrade } = await verifyPassword(
+          credentials.password,
+          user.password_hash
+        );
+        if (!valid) return null;
 
-        if (!isValid) return null;
+        // Transparently re-hash legacy placeholder hashes with real bcrypt
+        if (needsUpgrade) {
+          const password_hash = await hashPassword(credentials.password);
+          await supabase.from('users').update({ password_hash }).eq('id', user.id);
+        }
 
         return {
           id: user.id,

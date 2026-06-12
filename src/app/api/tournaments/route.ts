@@ -56,6 +56,16 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
+  if (!body.name || !body.date || !body.venue || !body.district_id) {
+    return NextResponse.json(
+      { error: 'Name, date, venue, and district are required' },
+      { status: 400 }
+    );
+  }
+  if (body.time_control && !['classical', 'rapid', 'blitz', 'bullet'].includes(body.time_control)) {
+    return NextResponse.json({ error: 'Invalid time control' }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from('tournaments')
     .insert({

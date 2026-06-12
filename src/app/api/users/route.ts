@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -10,9 +10,10 @@ export async function GET() {
   }
 
   const supabase = createServerClient();
+  // Never include password_hash in the response
   const { data, error } = await supabase
     .from('users')
-    .select('*, district:districts(id, name)')
+    .select('id, email, name, role, district_id, is_active, created_at, updated_at, district:districts(id, name)')
     .order('created_at', { ascending: false });
 
   if (error) {
