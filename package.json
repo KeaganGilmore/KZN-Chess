@@ -11,6 +11,7 @@
     "db:seed": "bash scripts/seed.sh"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@next-auth/supabase-adapter": "^0.2.1",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -43,6 +44,7 @@
     "react-hot-toast": "^2.6.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
+    "zod": "^4.4.3",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
