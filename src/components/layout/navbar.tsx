@@ -27,8 +27,13 @@ const navLinks = [
   { href: '/tournaments', label: 'Tournaments' },
   { href: '/feed', label: 'Feed' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/learn', label: 'Learn' },
   { href: '/about', label: 'About' },
 ];
+
+function isActiveLink(pathname: string, href: string): boolean {
+  return href === '/' ? pathname === '/' : pathname.startsWith(href);
+}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -66,7 +71,7 @@ export function Navbar() {
                 href={link.href}
                 className={cn(
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  pathname === link.href
+                  isActiveLink(pathname, link.href)
                     ? 'text-primary bg-primary/10'
                     : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                 )}
