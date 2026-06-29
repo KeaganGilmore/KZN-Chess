@@ -1,5 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
+import type { UserRole } from '@/lib/types';
 
 export async function getSession() {
   return getServerSession(authOptions);
@@ -12,7 +13,7 @@ export async function getCurrentUser() {
     id: string;
     email: string;
     name: string;
-    role: 'player' | 'organizer' | 'admin';
+    role: UserRole;
     district_id: string | null;
   };
 }

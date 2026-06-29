@@ -4,20 +4,20 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-      role: 'player' | 'organizer' | 'admin';
+      role: 'player' | 'organizer' | 'admin' | 'tutor';
       district_id: string | null;
     } & DefaultSession['user'];
   }
 
   interface User extends DefaultUser {
-    role: 'player' | 'organizer' | 'admin';
+    role: 'player' | 'organizer' | 'admin' | 'tutor';
     district_id: string | null;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    role: 'player' | 'organizer' | 'admin';
+    role: 'player' | 'organizer' | 'admin' | 'tutor';
     district_id: string | null;
   }
 }

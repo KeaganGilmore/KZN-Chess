@@ -1,4 +1,4 @@
-export type UserRole = 'player' | 'organizer' | 'admin';
+export type UserRole = 'player' | 'organizer' | 'admin' | 'tutor';
 export type TournamentStatus = 'pending' | 'approved' | 'rejected' | 'featured';
 export type TimeControlType = 'classical' | 'rapid' | 'blitz' | 'bullet';
 

@@ -13,6 +13,13 @@ export default withAuth(
       }
     }
 
+    // Tutor toolkit - tutor or admin only
+    if (pathname.startsWith('/learn/tutor')) {
+      if (token?.role !== 'admin' && token?.role !== 'tutor') {
+        return NextResponse.redirect(new URL('/auth', req.url));
+      }
+    }
+
     // Authenticated-only routes
     if (pathname.startsWith('/submit') || pathname.startsWith('/my-tournaments')) {
       if (!token) {
@@ -30,7 +37,8 @@ export default withAuth(
         if (
           pathname.startsWith('/admin') ||
           pathname.startsWith('/submit') ||
-          pathname.startsWith('/my-tournaments')
+          pathname.startsWith('/my-tournaments') ||
+          pathname.startsWith('/learn/tutor')
         ) {
           return !!token;
         }
@@ -41,5 +49,10 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ['/admin/:path*', '/submit/:path*', '/my-tournaments/:path*'],
+  matcher: [
+    '/admin/:path*',
+    '/submit/:path*',
+    '/my-tournaments/:path*',
+    '/learn/tutor/:path*',
+  ],
 };
