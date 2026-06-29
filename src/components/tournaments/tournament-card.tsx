@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import {
   Calendar,
   MapPin,
@@ -41,8 +41,16 @@ export function TournamentCard({
   const isEndorsed = isFeatured || tournament.is_verified;
   const isPending = tournament.status === 'pending';
 
+  // Guard against missing/invalid dates — the submit-form preview renders this
+  // card with an in-progress tournament whose date may still be empty.
+  const startDate = new Date(tournament.date);
+  const hasStartDate = isValid(startDate);
+  const endDate = tournament.end_date ? new Date(tournament.end_date) : null;
+  const hasEndDate =
+    !!endDate && isValid(endDate) && tournament.end_date !== tournament.date;
+
   const whatsappText = encodeURIComponent(
-    `Check out this chess tournament: ${tournament.name} on ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}. More info at ${SITE_URL}/tournaments/${tournament.id}`
+    `Check out this chess tournament: ${tournament.name}${hasStartDate ? ` on ${format(startDate, 'd MMM yyyy')}` : ''} at ${tournament.venue}. More info at ${SITE_URL}/tournaments/${tournament.id}`
   );
 
   return (
@@ -138,10 +146,14 @@ export function TournamentCard({
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    {format(new Date(tournament.date), 'EEE, d MMM yyyy')}
-                    {tournament.end_date &&
-                      tournament.end_date !== tournament.date &&
-                      ` - ${format(new Date(tournament.end_date), 'd MMM')}`}
+                    {hasStartDate ? (
+                      <>
+                        {format(startDate, 'EEE, d MMM yyyy')}
+                        {hasEndDate && ` - ${format(endDate!, 'd MMM')}`}
+                      </>
+                    ) : (
+                      'Date to be confirmed'
+                    )}
                   </span>
                 </div>
                 {tournament.start_time && (
