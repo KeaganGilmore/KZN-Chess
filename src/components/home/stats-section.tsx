@@ -5,35 +5,37 @@ import { Map, Trophy, Users } from 'lucide-react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 
 interface Stats {
-  districts?: number;
-  tournaments_hosted?: number;
-  players_registered?: number;
+  districts: number;
+  tournaments_hosted: number;
+  players_registered: number;
 }
 
 const zuluLabels = ['Izifunda', 'Ama-Tournament', 'Abadlali'];
 
-export function StatsSection({ stats }: { stats?: Stats }) {
+// Values are live counts from the database (see app/page.tsx) — exact, never
+// fabricated, so no inflated fallbacks and no "+" suffixes.
+export function StatsSection({ stats }: { stats: Stats }) {
   const items = [
     {
       icon: Map,
-      value: stats?.districts || 11,
+      value: stats.districts,
       label: 'Districts',
       zuluLabel: zuluLabels[0],
       suffix: '',
     },
     {
       icon: Trophy,
-      value: stats?.tournaments_hosted || 156,
+      value: stats.tournaments_hosted,
       label: 'Tournaments Hosted',
       zuluLabel: zuluLabels[1],
-      suffix: '+',
+      suffix: '',
     },
     {
       icon: Users,
-      value: stats?.players_registered || 2400,
+      value: stats.players_registered,
       label: 'Players Registered',
       zuluLabel: zuluLabels[2],
-      suffix: '+',
+      suffix: '',
     },
   ];
 

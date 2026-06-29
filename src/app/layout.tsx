@@ -7,6 +7,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
+import { SITE_URL } from '@/lib/site';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -22,6 +23,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'KZN Chess - Every Tournament, One Place',
   description:
     'The central hub for all chess tournaments across KwaZulu-Natal, South Africa. Find events, register, and grow the chess community.',
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     title: 'KZN Chess - Every Tournament, One Place',
     description:
       'The central hub for all chess tournaments across KwaZulu-Natal, South Africa.',
-    url: 'https://kznchess.co.za',
+    url: SITE_URL,
     siteName: 'KZN Chess',
     type: 'website',
   },

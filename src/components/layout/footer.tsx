@@ -2,8 +2,29 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Mail, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { createServerClient } from '@/lib/supabase/server';
+import { CONTACT_EMAIL } from '@/lib/site';
 
-export function Footer() {
+// Pull a handful of real, active districts from the DB so the footer links
+// always match live data (no hardcoded list that drifts on rename).
+async function getFooterDistricts(): Promise<string[]> {
+  try {
+    const supabase = createServerClient();
+    const { data } = await supabase
+      .from('districts')
+      .select('name')
+      .eq('is_active', true)
+      .order('name')
+      .limit(5);
+    return (data || []).map((d) => d.name as string);
+  } catch {
+    return [];
+  }
+}
+
+export async function Footer() {
+  const districts = await getFooterDistricts();
+
   return (
     <footer className="hidden md:block bg-card pattern-beadwork">
       {/* Beadwork top border */}
@@ -57,18 +78,16 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-heading font-semibold mb-4">Districts</h3>
             <ul className="space-y-2">
-              {['eThekwini', 'uMgungundlavu', 'King Cetshwayo', 'Zululand'].map(
-                (district) => (
-                  <li key={district}>
-                    <Link
-                      href={`/tournaments?district=${encodeURIComponent(district)}`}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {district}
-                    </Link>
-                  </li>
-                )
-              )}
+              {districts.map((district) => (
+                <li key={district}>
+                  <Link
+                    href={`/tournaments?district=${encodeURIComponent(district)}`}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {district}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -78,7 +97,12 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
-                info@kznchess.co.za
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="hover:text-foreground transition-colors"
+                >
+                  {CONTACT_EMAIL}
+                </a>
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />

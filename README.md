@@ -32,7 +32,7 @@ The central platform for all chess tournaments across KwaZulu-Natal, South Afric
 - Tournament management (approve, reject, feature, edit)
 - Organizer and user management with role changes
 - District management with coordinator info
-- Site content editor (hero text, stats, announcements, about page)
+- Site content editor (hero text, about page) and announcement banners
 - Audit log of all admin actions
 
 ## Getting Started
@@ -71,10 +71,15 @@ Required variables:
 
 ### 3. Set up the database
 
-Run the schema and seed files in your Supabase SQL Editor:
+Run the SQL files in your Supabase SQL Editor:
 
 1. Run `supabase/schema.sql` to create tables, indexes, and RLS policies
-2. Run `supabase/seed.sql` to populate districts, sample users, and tournaments
+2. Run the migrations in `supabase/migrations/` in order
+3. **Production:** run `supabase/seed_districts.sql` to insert the 11 real KZN
+   districts (idempotent, no sample data)
+4. **Local dev only:** `supabase/seed.sql` populates sample districts, users,
+   and tournaments. ⚠️ It **truncates every table** — never run it against
+   production.
 
 ### 4. Run development server
 
@@ -84,13 +89,17 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Test Accounts (from seed data)
+### Creating the first admin
 
-| Email | Role | Password |
-|---|---|---|
-| `admin@kznchess.co.za` | Admin | `password123` |
-| `organizer1@kznchess.co.za` | Organizer | `password123` |
-| `player1@kznchess.co.za` | Player | `password123` |
+There are no built-in accounts. Register through the app at `/auth`, then grant
+that user admin rights in the database:
+
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'you@example.com';
+```
+
+All further organizer/admin management happens in the admin panel. Passwords are
+stored with bcrypt; never commit real credentials.
 
 ## Deployment on Railway
 
@@ -131,7 +140,9 @@ src/
   middleware.ts           # Route protection
 supabase/
   schema.sql              # Database schema
-  seed.sql                # Seed data
+  migrations/             # Incremental migrations (run in order)
+  seed_districts.sql      # Production-safe: 11 KZN districts only
+  seed.sql                # Local-dev sample data (truncates all tables)
 ```
 
 ## Roles

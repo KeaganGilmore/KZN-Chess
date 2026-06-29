@@ -24,7 +24,8 @@ async function getData() {
       aboutContent: (contentRes.data?.value as any)?.content || '',
       districts: (districtsRes.data || []) as District[],
     };
-  } catch {
+  } catch (err) {
+    console.error('About page getData failed:', err);
     return { aboutContent: '', districts: [] };
   }
 }
@@ -59,8 +60,8 @@ export default async function AboutPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-2">Our Districts</h2>
           <p className="text-muted-foreground mb-8">
-            KwaZulu-Natal is divided into 11 districts, each with its own
-            vibrant chess community.
+            KwaZulu-Natal is divided into {districts.length} districts, each with
+            its own vibrant chess community.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {districts.map((district) => (

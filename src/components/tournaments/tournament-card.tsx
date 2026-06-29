@@ -18,6 +18,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { SITE_URL } from '@/lib/site';
 import type { Tournament } from '@/lib/types';
 
 const timeControlColors: Record<string, string> = {
@@ -41,7 +42,7 @@ export function TournamentCard({
   const isPending = tournament.status === 'pending';
 
   const whatsappText = encodeURIComponent(
-    `Check out this chess tournament: ${tournament.name} on ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}. More info at kznchess.co.za/tournaments/${tournament.id}`
+    `Check out this chess tournament: ${tournament.name} on ${format(new Date(tournament.date), 'd MMM yyyy')} at ${tournament.venue}. More info at ${SITE_URL}/tournaments/${tournament.id}`
   );
 
   return (
