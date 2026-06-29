@@ -14,7 +14,7 @@ export async function PATCH(
   const body = await request.json();
   const supabase = createServerClient();
 
-  const VALID_ROLES = ['player', 'organizer', 'admin'];
+  const VALID_ROLES = ['player', 'organizer', 'admin', 'tutor'];
   const allowedFields: Record<string, any> = {};
   if (body.role) {
     if (!VALID_ROLES.includes(body.role)) {
@@ -30,7 +30,7 @@ export async function PATCH(
   }
 
   // Admins cannot demote or deactivate their own account
-  if (params.id === user.id && (allowedFields.role === 'player' || allowedFields.role === 'organizer' || allowedFields.is_active === false)) {
+  if (params.id === user.id && ((allowedFields.role && allowedFields.role !== 'admin') || allowedFields.is_active === false)) {
     return NextResponse.json(
       { error: 'You cannot demote or deactivate your own admin account' },
       { status: 400 }

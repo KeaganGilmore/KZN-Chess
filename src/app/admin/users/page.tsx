@@ -27,6 +27,7 @@ import { format } from 'date-fns';
 const roleColors: Record<string, string> = {
   player: 'bg-muted text-muted-foreground',
   organizer: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  tutor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
   admin: 'bg-primary/10 text-primary border-primary/20',
 };
 
@@ -118,6 +119,7 @@ export default function AdminUsersPage() {
             <SelectItem value="all">All Roles</SelectItem>
             <SelectItem value="player">Player</SelectItem>
             <SelectItem value="organizer">Organizer</SelectItem>
+            <SelectItem value="tutor">Tutor</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>
@@ -156,6 +158,7 @@ export default function AdminUsersPage() {
                     <SelectContent>
                       <SelectItem value="player">Player</SelectItem>
                       <SelectItem value="organizer">Organizer</SelectItem>
+                      <SelectItem value="tutor">Tutor</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
