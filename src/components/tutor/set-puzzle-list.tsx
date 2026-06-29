@@ -44,7 +44,7 @@ export function SetPuzzleList({ setId, puzzles }: { setId: string; puzzles: P[] 
                   </Badge>
                 ))}
               </div>
-              <Button variant="ghost" size="icon" onClick={() => remove(p.id)} disabled={busy === p.id}>
+              <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => remove(p.id)} disabled={busy === p.id}>
                 <Trash2 className="w-4 h-4 text-muted-foreground" />
               </Button>
             </div>

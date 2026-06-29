@@ -59,7 +59,7 @@ export default async function PuzzlePage({ params }: { params: { id: string } })
           <ArrowLeft className="w-4 h-4" /> Puzzle library
         </Link>
 
-        <div className="grid lg:grid-cols-[auto_1fr] gap-8 mt-4">
+        <div className="grid lg:grid-cols-[minmax(0,440px)_1fr] gap-8 mt-4">
           <Card>
             <CardContent className="pt-6">
               <PuzzleSolver puzzle={puzzle} isAuthed={isAuthed} />

@@ -67,12 +67,12 @@ export function PuzzleBrowser({
     <div className="space-y-6">
       <Card>
         <CardContent className="p-4 flex flex-wrap gap-3 items-end">
-          <div className="space-y-1">
+          <div className="space-y-1 w-full sm:w-auto">
             <label className="text-xs text-muted-foreground">Theme</label>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-44"
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-full sm:w-44"
             >
               <option value="">Any theme</option>
               {THEMES.map((t) => (
@@ -94,12 +94,12 @@ export function PuzzleBrowser({
             <Search className="w-4 h-4 mr-1.5" />
             {loading ? 'Searching…' : 'Search'}
           </Button>
-          <div className="space-y-1 ml-auto">
+          <div className="space-y-1 w-full sm:w-auto sm:ml-auto">
             <label className="text-xs text-muted-foreground">Add to set</label>
             <select
               value={targetSet}
               onChange={(e) => setTargetSet(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-52"
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-full sm:w-52"
             >
               {sets.length === 0 && <option value="">No sets — create one first</option>}
               {sets.map((s) => (

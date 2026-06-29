@@ -122,7 +122,7 @@ export function TutorDashboard() {
                   </p>
                 </Link>
                 {s.skill_level && <Badge variant="outline">{s.skill_level}</Badge>}
-                <Button variant="ghost" size="icon" onClick={() => removeSet(s.id)}>
+                <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => removeSet(s.id)}>
                   <Trash2 className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </CardContent>
@@ -157,7 +157,7 @@ export function TutorDashboard() {
                   <p className="font-medium text-sm truncate">{s.name}</p>
                   {s.skill_level && <p className="text-xs text-muted-foreground">{s.skill_level}</p>}
                 </Link>
-                <Button variant="ghost" size="icon" onClick={() => removeStudent(s.id)}>
+                <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => removeStudent(s.id)}>
                   <Trash2 className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </CardContent>

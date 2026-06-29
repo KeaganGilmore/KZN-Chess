@@ -70,7 +70,7 @@ export default async function PrintSetPage({ params }: { params: { id: string } 
       {puzzles.length === 0 ? (
         <p>No puzzles in this set.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           {puzzles.map((p: any, i: number) => {
             const d = diagram(p.fen, p.moves);
             const sans = solutionSan(p.fen, p.moves);

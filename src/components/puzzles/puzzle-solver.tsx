@@ -9,6 +9,7 @@ import { Lightbulb, Eye, ArrowRight, Check, X, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useBoardWidth } from '@/lib/use-board-width';
 
 const Chessboard = dynamic(
   () => import('react-chessboard').then((m) => m.Chessboard),
@@ -47,7 +48,7 @@ export function PuzzleSolver({
   const [usedHint, setUsedHint] = useState(false);
   const [hintSquare, setHintSquare] = useState<string | null>(null);
   const [orientation, setOrientation] = useState<'white' | 'black'>('white');
-  const [boardWidth, setBoardWidth] = useState(420);
+  const [boardRef, boardWidth] = useBoardWidth(440);
   const [loadingNext, setLoadingNext] = useState(false);
   const recorded = useRef(false);
   const shake = useAnimationControls();
@@ -68,13 +69,6 @@ export function PuzzleSolver({
     setHintSquare(null);
     recorded.current = false;
   }, [puzzle.fen, puzzle.id, solution]);
-
-  useEffect(() => {
-    const update = () => setBoardWidth(Math.min(440, window.innerWidth - 48));
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
 
   const record = useCallback(
     async (correct: boolean) => {
@@ -197,26 +191,28 @@ export function PuzzleSolver({
 
   return (
     <div className="space-y-4">
-      <motion.div animate={shake}>
-        <div
-          className={cn(
-            'inline-block rounded-lg transition-shadow',
-            status === 'solved' && 'ring-2 ring-green-500',
-            status === 'wrong' && 'ring-2 ring-red-500',
-            status === 'failed' && 'ring-2 ring-amber-500'
-          )}
-        >
-          <Chessboard
-            position={fen}
-            onPieceDrop={onDrop}
-            boardOrientation={orientation}
-            boardWidth={boardWidth}
-            arePiecesDraggable={active}
-            customSquareStyles={customSquareStyles}
-            customBoardStyle={{ borderRadius: '0.5rem' }}
-          />
-        </div>
-      </motion.div>
+      <div ref={boardRef} className="w-full max-w-[440px]">
+        <motion.div animate={shake}>
+          <div
+            className={cn(
+              'rounded-lg transition-shadow',
+              status === 'solved' && 'ring-2 ring-green-500',
+              status === 'wrong' && 'ring-2 ring-red-500',
+              status === 'failed' && 'ring-2 ring-amber-500'
+            )}
+          >
+            <Chessboard
+              position={fen}
+              onPieceDrop={onDrop}
+              boardOrientation={orientation}
+              boardWidth={boardWidth}
+              arePiecesDraggable={active}
+              customSquareStyles={customSquareStyles}
+              customBoardStyle={{ borderRadius: '0.5rem' }}
+            />
+          </div>
+        </motion.div>
+      </div>
 
       {/* Status line */}
       <div className="min-h-[28px] text-sm font-medium">

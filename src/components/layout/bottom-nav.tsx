@@ -34,14 +34,14 @@ export function BottomNav() {
               key={link.href + link.label}
               href={link.href}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] rounded-lg transition-colors',
+                'flex flex-1 min-w-0 flex-col items-center justify-center gap-0.5 min-h-[44px] rounded-lg transition-colors',
                 isActive
                   ? 'text-primary'
                   : 'text-muted-foreground'
               )}
             >
-              <link.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{link.label}</span>
+              <link.icon className="w-5 h-5 shrink-0" />
+              <span className="text-[10px] font-medium max-w-full truncate">{link.label}</span>
             </Link>
           );
         })}

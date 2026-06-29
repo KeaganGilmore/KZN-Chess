@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Chess } from 'chess.js';
+import { useBoardWidth } from '@/lib/use-board-width';
 
 // react-chessboard touches browser-only APIs, so load it client-side only.
 const Chessboard = dynamic(
@@ -31,13 +32,18 @@ export function PuzzleBoard({
     }
   }, [fen]);
 
+  // boardWidth is treated as a max; the board shrinks to fit narrow screens.
+  const [ref, width] = useBoardWidth(boardWidth);
+
   return (
-    <Chessboard
-      position={position}
-      boardOrientation={orientation}
-      boardWidth={boardWidth}
-      arePiecesDraggable={false}
-      customBoardStyle={{ borderRadius: '0.5rem' }}
-    />
+    <div ref={ref} className="w-full" style={{ maxWidth: boardWidth }}>
+      <Chessboard
+        position={position}
+        boardOrientation={orientation}
+        boardWidth={width}
+        arePiecesDraggable={false}
+        customBoardStyle={{ borderRadius: '0.5rem' }}
+      />
+    </div>
   );
 }

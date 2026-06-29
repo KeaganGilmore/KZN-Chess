@@ -77,7 +77,7 @@ export function RepertoireList() {
                 <p className="font-medium text-sm truncate">{r.name}</p>
               </Link>
               <Badge variant="outline" className="capitalize">{r.color}</Badge>
-              <Button variant="ghost" size="icon" onClick={() => remove(r.id)}>
+              <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => remove(r.id)}>
                 <Trash2 className="w-4 h-4 text-muted-foreground" />
               </Button>
             </CardContent>

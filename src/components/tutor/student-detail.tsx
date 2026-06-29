@@ -120,7 +120,7 @@ export function StudentDetail({
             <CardTitle className="text-base">Log a session</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Date</label>
                 <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -166,7 +166,7 @@ export function StudentDetail({
                     {l.set && <Badge variant="outline">{l.set.name}</Badge>}
                     {l.rating_snapshot != null && <Badge variant="outline">{l.rating_snapshot}</Badge>}
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => removeLog(l.id)}>
+                  <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => removeLog(l.id)}>
                     <Trash2 className="w-4 h-4 text-muted-foreground" />
                   </Button>
                 </div>

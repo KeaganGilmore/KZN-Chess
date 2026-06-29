@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { Chess } from 'chess.js';
 import { Undo2, Trash2, Save, Upload, CornerDownRight } from 'lucide-react';
 import { childrenOf, pathToNode, START_FEN, type RepNode } from '@/lib/openings/tree';
+import { useBoardWidth } from '@/lib/use-board-width';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,8 +41,8 @@ function TreeRows({
         <div key={k.id}>
           <button
             onClick={() => onSelect(k.id)}
-            style={{ paddingLeft: 8 + depth * 14 }}
-            className={`block w-full text-left text-sm py-0.5 rounded hover:bg-secondary ${
+            style={{ paddingLeft: 8 + Math.min(depth, 6) * 14 }}
+            className={`block w-max min-w-full text-left text-sm py-0.5 rounded hover:bg-secondary whitespace-nowrap ${
               k.id === currentId ? 'text-primary font-medium' : ''
             }`}
           >
@@ -66,7 +67,7 @@ export function RepertoireBuilder({
   const [nodes, setNodes] = useState<RepNode[]>(initialNodes);
   const rootId = useMemo(() => nodes.find((n) => n.parent_id === null)?.id ?? null, [nodes]);
   const [currentId, setCurrentId] = useState<string | null>(rootId);
-  const [boardWidth, setBoardWidth] = useState(420);
+  const [boardRef, boardWidth] = useBoardWidth(440);
   const [notes, setNotes] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [pgn, setPgn] = useState('');
@@ -75,13 +76,6 @@ export function RepertoireBuilder({
   useEffect(() => {
     if (!currentId && rootId) setCurrentId(rootId);
   }, [rootId, currentId]);
-
-  useEffect(() => {
-    const u = () => setBoardWidth(Math.min(440, window.innerWidth - 48));
-    u();
-    window.addEventListener('resize', u);
-    return () => window.removeEventListener('resize', u);
-  }, []);
 
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
   const current = currentId ? byId.get(currentId) : undefined;
@@ -177,16 +171,18 @@ export function RepertoireBuilder({
   };
 
   return (
-    <div className="grid lg:grid-cols-[auto_1fr] gap-8">
+    <div className="grid lg:grid-cols-[minmax(0,440px)_1fr] gap-8">
       {/* Board + line */}
       <div className="space-y-3">
-        <Chessboard
-          position={currentFen}
-          onPieceDrop={onDrop}
-          boardOrientation={repertoire.color}
-          boardWidth={boardWidth}
-          customBoardStyle={{ borderRadius: '0.5rem' }}
-        />
+        <div ref={boardRef} className="w-full max-w-[440px]">
+          <Chessboard
+            position={currentFen}
+            onPieceDrop={onDrop}
+            boardOrientation={repertoire.color}
+            boardWidth={boardWidth}
+            customBoardStyle={{ borderRadius: '0.5rem' }}
+          />
+        </div>
         <div className="text-sm text-muted-foreground flex flex-wrap gap-1 items-center min-h-[20px]">
           {path.length === 0 ? (
             <span>Starting position — play a move to begin.</span>
@@ -261,7 +257,7 @@ export function RepertoireBuilder({
             <CardHeader>
               <CardTitle className="text-base">Repertoire lines</CardTitle>
             </CardHeader>
-            <CardContent className="max-h-72 overflow-y-auto">
+            <CardContent className="max-h-72 overflow-auto">
               <TreeRows nodes={nodes} parentId={rootId} currentId={currentId} onSelect={setCurrentId} />
               {childrenOf(nodes, rootId).length === 0 && (
                 <p className="text-sm text-muted-foreground">Empty — build a line or import a PGN.</p>

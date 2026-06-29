@@ -8,6 +8,7 @@ import { Check, X, ArrowRight, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useBoardWidth } from '@/lib/use-board-width';
 
 const Chessboard = dynamic(() => import('react-chessboard').then((m) => m.Chessboard), { ssr: false });
 
@@ -30,7 +31,7 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
   const [status, setStatus] = useState<'answering' | 'correct' | 'wrong'>('answering');
   const [fen, setFen] = useState('');
   const [results, setResults] = useState<{ item: Item; correct: boolean }[]>([]);
-  const [boardWidth, setBoardWidth] = useState(420);
+  const [boardRef, boardWidth] = useBoardWidth(440);
   const shake = useAnimationControls();
 
   const load = async () => {
@@ -46,13 +47,6 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    const u = () => setBoardWidth(Math.min(440, window.innerWidth - 48));
-    u();
-    window.addEventListener('resize', u);
-    return () => window.removeEventListener('resize', u);
-  }, []);
-
   const current = items[idx];
   useEffect(() => {
     if (current) {
@@ -148,24 +142,26 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
       <div className="text-sm text-muted-foreground">
         Position {idx + 1} of {items.length} · {repertoire.color} to move — play your move.
       </div>
-      <motion.div animate={shake}>
-        <div
-          className={cn(
-            'inline-block rounded-lg',
-            status === 'correct' && 'ring-2 ring-green-500',
-            status === 'wrong' && 'ring-2 ring-red-500'
-          )}
-        >
-          <Chessboard
-            position={fen}
-            onPieceDrop={onDrop}
-            boardOrientation={repertoire.color}
-            boardWidth={boardWidth}
-            arePiecesDraggable={status === 'answering'}
-            customBoardStyle={{ borderRadius: '0.5rem' }}
-          />
-        </div>
-      </motion.div>
+      <div ref={boardRef} className="w-full max-w-[440px]">
+        <motion.div animate={shake}>
+          <div
+            className={cn(
+              'rounded-lg',
+              status === 'correct' && 'ring-2 ring-green-500',
+              status === 'wrong' && 'ring-2 ring-red-500'
+            )}
+          >
+            <Chessboard
+              position={fen}
+              onPieceDrop={onDrop}
+              boardOrientation={repertoire.color}
+              boardWidth={boardWidth}
+              arePiecesDraggable={status === 'answering'}
+              customBoardStyle={{ borderRadius: '0.5rem' }}
+            />
+          </div>
+        </motion.div>
+      </div>
 
       <div className="min-h-[24px] text-sm font-medium">
         {status === 'correct' && (
