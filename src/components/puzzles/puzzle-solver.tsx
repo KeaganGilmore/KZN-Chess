@@ -47,6 +47,7 @@ export function PuzzleSolver({
   const [status, setStatus] = useState<Status>('solving');
   const [usedHint, setUsedHint] = useState(false);
   const [hintSquare, setHintSquare] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [orientation, setOrientation] = useState<'white' | 'black'>('white');
   const [boardRef, boardWidth] = useBoardWidth(440);
   const [loadingNext, setLoadingNext] = useState(false);
@@ -67,6 +68,7 @@ export function PuzzleSolver({
     setStatus('solving');
     setUsedHint(false);
     setHintSquare(null);
+    setSelected(null);
     recorded.current = false;
   }, [puzzle.fen, puzzle.id, solution]);
 
@@ -88,21 +90,22 @@ export function PuzzleSolver({
     [puzzle.id, isAuthed, usedHint]
   );
 
-  const onDrop = useCallback(
-    (source: string, target: string): boolean => {
-      if (status === 'solved' || status === 'failed') return false;
+  // Shared move handler for both drag and click-to-move.
+  const attemptMove = useCallback(
+    (source: string, target: string): 'correct' | 'wrong' | 'illegal' => {
+      if (status === 'solved' || status === 'failed') return 'illegal';
       const game = gameRef.current;
       const expected = solution[moveIndex];
-      if (!expected) return false;
+      if (!expected) return 'illegal';
 
       const expectedPromo = expected.length > 4 ? expected[4] : undefined;
       let move;
       try {
         move = game.move({ from: source, to: target, promotion: expectedPromo || 'q' });
       } catch {
-        return false;
+        return 'illegal';
       }
-      if (!move) return false;
+      if (!move) return 'illegal';
 
       const played = uci(move.from, move.to, move.promotion);
       const matches = played === expected || played.slice(0, 4) === expected.slice(0, 4);
@@ -112,7 +115,7 @@ export function PuzzleSolver({
         setHintSquare(null);
         shake.start({ x: [0, -10, 10, -7, 7, 0], transition: { duration: 0.4 } });
         record(false);
-        return false;
+        return 'wrong';
       }
 
       setHintSquare(null);
@@ -128,9 +131,42 @@ export function PuzzleSolver({
         setStatus('solved');
         record(true);
       }
-      return true;
+      return 'correct';
     },
     [status, solution, moveIndex, shake, record]
+  );
+
+  // Drag-to-move (works on desktop). Returns true only on a correct move so the
+  // board keeps the piece; otherwise it snaps back.
+  const onDrop = useCallback(
+    (source: string, target: string): boolean => attemptMove(source, target) === 'correct',
+    [attemptMove]
+  );
+
+  // Click/tap-to-move — the reliable path on touch devices. First tap selects an
+  // own piece, second tap moves it.
+  const onSquareClick = useCallback(
+    (square: string) => {
+      if (status === 'solved' || status === 'failed') return;
+      const game = gameRef.current;
+      if (selected && square !== selected) {
+        const result = attemptMove(selected, square);
+        if (result === 'illegal') {
+          const p = game.get(square as any);
+          setSelected(p && p.color === game.turn() ? square : null);
+        } else {
+          setSelected(null);
+        }
+        return;
+      }
+      if (selected === square) {
+        setSelected(null);
+        return;
+      }
+      const p = game.get(square as any);
+      if (p && p.color === game.turn()) setSelected(square);
+    },
+    [selected, status, attemptMove]
   );
 
   const showHint = () => {
@@ -168,6 +204,7 @@ export function PuzzleSolver({
     setMoveIndex(1);
     setStatus('solving');
     setHintSquare(null);
+    setSelected(null);
   };
 
   const nextPuzzle = async () => {
@@ -184,10 +221,22 @@ export function PuzzleSolver({
     }
   };
 
-  const customSquareStyles = hintSquare
-    ? { [hintSquare]: { background: 'rgba(226, 160, 63, 0.45)' } }
-    : {};
   const active = status === 'solving' || status === 'wrong';
+  const moveTargets =
+    selected && active
+      ? gameRef.current.moves({ square: selected as any, verbose: true }).map((m: any) => m.to)
+      : [];
+  const customSquareStyles: Record<string, { background?: string }> = {};
+  if (hintSquare) customSquareStyles[hintSquare] = { background: 'rgba(226, 160, 63, 0.45)' };
+  if (selected) customSquareStyles[selected] = { background: 'rgba(226, 160, 63, 0.5)' };
+  for (const sq of moveTargets) {
+    customSquareStyles[sq] = {
+      ...(customSquareStyles[sq] || {}),
+      background: gameRef.current.get(sq as any)
+        ? 'radial-gradient(circle, transparent 56%, rgba(226,160,63,0.55) 58%)'
+        : 'radial-gradient(circle, rgba(226,160,63,0.55) 22%, transparent 24%)',
+    };
+  }
 
   return (
     <div className="space-y-4">
@@ -204,6 +253,7 @@ export function PuzzleSolver({
             <Chessboard
               position={fen}
               onPieceDrop={onDrop}
+              onSquareClick={onSquareClick}
               boardOrientation={orientation}
               boardWidth={boardWidth}
               arePiecesDraggable={active}

@@ -72,6 +72,7 @@ export function RepertoireBuilder({
   const [tagsInput, setTagsInput] = useState('');
   const [pgn, setPgn] = useState('');
   const [importing, setImporting] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentId && rootId) setCurrentId(rootId);
@@ -86,6 +87,7 @@ export function RepertoireBuilder({
   useEffect(() => {
     setNotes(current?.notes || '');
     setTagsInput((current?.tags || []).join(', '));
+    setSelected(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentId]);
 
@@ -94,7 +96,7 @@ export function RepertoireBuilder({
     if (json.nodes) setNodes(json.nodes);
   };
 
-  const onDrop = useCallback(
+  const attemptMove = useCallback(
     (source: string, target: string): boolean => {
       const game = new Chess(currentFen);
       let move;
@@ -127,6 +129,33 @@ export function RepertoireBuilder({
       return true;
     },
     [currentFen, currentId, nodes, repertoire.id]
+  );
+
+  const onDrop = useCallback(
+    (source: string, target: string): boolean => attemptMove(source, target),
+    [attemptMove]
+  );
+
+  const onSquareClick = useCallback(
+    (square: string) => {
+      const game = new Chess(currentFen);
+      if (selected) {
+        if (square === selected) {
+          setSelected(null);
+          return;
+        }
+        if (attemptMove(selected, square)) {
+          setSelected(null);
+          return;
+        }
+        const p = game.get(square as any);
+        setSelected(p && p.color === game.turn() ? square : null);
+        return;
+      }
+      const p = game.get(square as any);
+      if (p && p.color === game.turn()) setSelected(square);
+    },
+    [selected, currentFen, attemptMove]
   );
 
   const saveNotes = async () => {
@@ -170,6 +199,20 @@ export function RepertoireBuilder({
     setImporting(false);
   };
 
+  const targetGame = new Chess(currentFen);
+  const moveTargets = selected
+    ? targetGame.moves({ square: selected as any, verbose: true }).map((m: any) => m.to)
+    : [];
+  const customSquareStyles: Record<string, { background?: string }> = {};
+  if (selected) customSquareStyles[selected] = { background: 'rgba(226, 160, 63, 0.5)' };
+  for (const sq of moveTargets) {
+    customSquareStyles[sq] = {
+      background: targetGame.get(sq as any)
+        ? 'radial-gradient(circle, transparent 56%, rgba(226,160,63,0.55) 58%)'
+        : 'radial-gradient(circle, rgba(226,160,63,0.55) 22%, transparent 24%)',
+    };
+  }
+
   return (
     <div className="grid lg:grid-cols-[minmax(0,440px)_1fr] gap-8">
       {/* Board + line */}
@@ -178,8 +221,10 @@ export function RepertoireBuilder({
           <Chessboard
             position={currentFen}
             onPieceDrop={onDrop}
+            onSquareClick={onSquareClick}
             boardOrientation={repertoire.color}
             boardWidth={boardWidth}
+            customSquareStyles={customSquareStyles}
             customBoardStyle={{ borderRadius: '0.5rem' }}
           />
         </div>

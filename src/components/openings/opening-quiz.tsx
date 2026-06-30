@@ -31,6 +31,7 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
   const [status, setStatus] = useState<'answering' | 'correct' | 'wrong'>('answering');
   const [fen, setFen] = useState('');
   const [results, setResults] = useState<{ item: Item; correct: boolean }[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
   const [boardRef, boardWidth] = useBoardWidth(440);
   const shake = useAnimationControls();
 
@@ -52,6 +53,7 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
     if (current) {
       setFen(current.fen);
       setStatus('answering');
+      setSelected(null);
     }
   }, [idx, current]);
 
@@ -67,17 +69,17 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
     }
   };
 
-  const onDrop = useCallback(
-    (source: string, target: string): boolean => {
-      if (!current || status !== 'answering') return false;
+  const attemptMove = useCallback(
+    (source: string, target: string): 'correct' | 'wrong' | 'illegal' => {
+      if (!current || status !== 'answering') return 'illegal';
       const game = new Chess(current.fen);
       let move;
       try {
         move = game.move({ from: source, to: target, promotion: 'q' });
       } catch {
-        return false;
+        return 'illegal';
       }
-      if (!move) return false;
+      if (!move) return 'illegal';
       const uci = `${move.from}${move.to}${move.promotion || ''}`;
       const correct = current.answers.includes(uci);
       if (correct) {
@@ -89,10 +91,39 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
       }
       setResults((r) => [...r, { item: current, correct }]);
       grade(current.node_id, correct);
-      return correct;
+      return correct ? 'correct' : 'wrong';
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [current, status, shake, repertoire.id]
+  );
+
+  const onDrop = useCallback(
+    (source: string, target: string): boolean => attemptMove(source, target) === 'correct',
+    [attemptMove]
+  );
+
+  const onSquareClick = useCallback(
+    (square: string) => {
+      if (!current || status !== 'answering') return;
+      const game = new Chess(current.fen);
+      if (selected && square !== selected) {
+        const result = attemptMove(selected, square);
+        if (result === 'illegal') {
+          const p = game.get(square as any);
+          setSelected(p && p.color === game.turn() ? square : null);
+        } else {
+          setSelected(null);
+        }
+        return;
+      }
+      if (selected === square) {
+        setSelected(null);
+        return;
+      }
+      const p = game.get(square as any);
+      if (p && p.color === game.turn()) setSelected(square);
+    },
+    [selected, current, status, attemptMove]
   );
 
   if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
@@ -137,6 +168,21 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
     );
   }
 
+  const targetGame = current ? new Chess(current.fen) : null;
+  const moveTargets =
+    selected && status === 'answering' && targetGame
+      ? targetGame.moves({ square: selected as any, verbose: true }).map((m: any) => m.to)
+      : [];
+  const customSquareStyles: Record<string, { background?: string }> = {};
+  if (selected) customSquareStyles[selected] = { background: 'rgba(226, 160, 63, 0.5)' };
+  for (const sq of moveTargets) {
+    customSquareStyles[sq] = {
+      background: targetGame && targetGame.get(sq as any)
+        ? 'radial-gradient(circle, transparent 56%, rgba(226,160,63,0.55) 58%)'
+        : 'radial-gradient(circle, rgba(226,160,63,0.55) 22%, transparent 24%)',
+    };
+  }
+
   return (
     <div className="space-y-4 max-w-md">
       <div className="text-sm text-muted-foreground">
@@ -154,9 +200,11 @@ export function OpeningQuiz({ repertoire }: { repertoire: Rep }) {
             <Chessboard
               position={fen}
               onPieceDrop={onDrop}
+              onSquareClick={onSquareClick}
               boardOrientation={repertoire.color}
               boardWidth={boardWidth}
               arePiecesDraggable={status === 'answering'}
+              customSquareStyles={customSquareStyles}
               customBoardStyle={{ borderRadius: '0.5rem' }}
             />
           </div>
