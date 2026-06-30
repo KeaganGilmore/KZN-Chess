@@ -407,7 +407,7 @@ export function TournamentDetail({
               <p className="text-xs text-muted-foreground mb-3">
                 Rated puzzles and opening tools to sharpen up before the next event.
               </p>
-              <Link href="/learn/puzzles">
+              <Link href="/learn/puzzles" className="block">
                 <Button size="sm" variant="outline" className="w-full">
                   Open the trainer
                 </Button>
