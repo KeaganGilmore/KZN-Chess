@@ -4,6 +4,6 @@ import { getCurrentUser } from '@/lib/auth';
 export async function getTutor() {
   const user = await getCurrentUser();
   if (!user) return null;
-  if (user.role !== 'admin' && user.role !== 'tutor') return null;
+  if (!user.is_tutor && user.role !== 'admin') return null;
   return user;
 }

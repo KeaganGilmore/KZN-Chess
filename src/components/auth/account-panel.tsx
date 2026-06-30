@@ -18,7 +18,7 @@ interface AccountPanelProps {
   user: {
     name: string;
     email: string;
-    role: 'player' | 'organizer' | 'admin' | 'tutor';
+    role: 'player' | 'organizer' | 'admin';
   };
 }
 

@@ -30,7 +30,7 @@ const sections = [
 
 export default async function LearnPage() {
   const user = await getCurrentUser();
-  const isTutor = !!user && (user.role === 'admin' || user.role === 'tutor');
+  const isTutor = !!user && (user.is_tutor || user.role === 'admin');
 
   return (
     <PageTransition>

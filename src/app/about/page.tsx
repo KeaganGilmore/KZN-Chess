@@ -1,8 +1,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { PageTransition } from '@/components/ui/page-transition';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Users, Trophy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MapPin, Users, Trophy, ArrowRight } from 'lucide-react';
 import type { District, SiteContent } from '@/lib/types';
 
 export const metadata = {
@@ -133,6 +135,24 @@ export default async function AboutPage() {
               </Card>
             ))}
           </div>
+        </div>
+
+        <div className="mt-12">
+          <Card className="bg-primary/[0.03] border-primary/20">
+            <CardContent className="p-6 sm:p-8 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold mb-1">Train between tournaments</h2>
+                <p className="text-sm text-muted-foreground">
+                  Rated puzzles, opening repertoires, and spaced-repetition drills.
+                </p>
+              </div>
+              <Link href="/learn">
+                <Button>
+                  Go to Learn <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </PageTransition>

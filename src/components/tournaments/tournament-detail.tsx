@@ -22,6 +22,7 @@ import {
   Copy,
   MessageCircle,
   Pencil,
+  GraduationCap,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -395,6 +396,24 @@ export function TournamentDetail({
               </Card>
             </motion.div>
           )}
+
+          {/* Train CTA */}
+          <Card className="bg-primary/[0.03] border-primary/20">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <GraduationCap className="w-4 h-4 text-primary" />
+                <p className="font-semibold text-sm">Train your chess</p>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Rated puzzles and opening tools to sharpen up before the next event.
+              </p>
+              <Link href="/learn/puzzles">
+                <Button size="sm" variant="outline" className="w-full">
+                  Open the trainer
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
 
           {/* Related Tournaments */}
           {related.length > 0 && (

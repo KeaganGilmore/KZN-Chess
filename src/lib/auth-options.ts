@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          is_tutor: user.is_tutor ?? false,
           district_id: user.district_id,
         };
       },
@@ -50,6 +51,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role;
+        token.is_tutor = (user as any).is_tutor;
         token.district_id = (user as any).district_id;
       }
       return token;
@@ -58,6 +60,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.sub;
         (session.user as any).role = token.role;
+        (session.user as any).is_tutor = token.is_tutor;
         (session.user as any).district_id = token.district_id;
       }
       return session;

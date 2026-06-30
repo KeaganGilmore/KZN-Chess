@@ -14,7 +14,7 @@ export async function PATCH(
   const body = await request.json();
   const supabase = createServerClient();
 
-  const VALID_ROLES = ['player', 'organizer', 'admin', 'tutor'];
+  const VALID_ROLES = ['player', 'organizer', 'admin'];
   const allowedFields: Record<string, any> = {};
   if (body.role) {
     if (!VALID_ROLES.includes(body.role)) {
@@ -23,6 +23,7 @@ export async function PATCH(
     allowedFields.role = body.role;
   }
   if (body.is_active !== undefined) allowedFields.is_active = !!body.is_active;
+  if (body.is_tutor !== undefined) allowedFields.is_tutor = !!body.is_tutor;
   if (body.district_id !== undefined) allowedFields.district_id = body.district_id || null;
 
   if (Object.keys(allowedFields).length === 0) {

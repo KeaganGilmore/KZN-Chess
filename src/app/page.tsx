@@ -2,6 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { HeroSection } from '@/components/home/hero-section';
 import { StatsSection } from '@/components/home/stats-section';
 import { UpcomingTournaments } from '@/components/home/upcoming-tournaments';
+import { LearnCta } from '@/components/home/learn-cta';
 import { AnnouncementBanner } from '@/components/home/announcement-banner';
 import { AdUnit } from '@/components/ads/ad-unit';
 import type { Tournament, SiteContent, Announcement } from '@/lib/types';
@@ -106,6 +107,7 @@ export default async function HomePage() {
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
       />
       <UpcomingTournaments tournaments={tournaments} />
+      <LearnCta />
     </>
   );
 }

@@ -56,6 +56,7 @@ export async function Footer() {
             <ul className="space-y-2">
               {[
                 { href: '/tournaments', label: 'Tournaments' },
+                { href: '/learn', label: 'Learn / Train' },
                 { href: '/gallery', label: 'Gallery' },
                 { href: '/feed', label: 'Feed' },
                 { href: '/about', label: 'About' },

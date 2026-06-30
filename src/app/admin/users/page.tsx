@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -27,7 +28,6 @@ import { format } from 'date-fns';
 const roleColors: Record<string, string> = {
   player: 'bg-muted text-muted-foreground',
   organizer: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  tutor: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
   admin: 'bg-primary/10 text-primary border-primary/20',
 };
 
@@ -80,6 +80,7 @@ export default function AdminUsersPage() {
         return false;
       }
     }
+    if (roleFilter === 'tutor') return !!u.is_tutor;
     if (roleFilter !== 'all' && u.role !== roleFilter) return false;
     return true;
   });
@@ -97,7 +98,8 @@ export default function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-bold">User Management</h1>
         <p className="text-muted-foreground mt-1">
-          Manage user roles and account status.
+          Manage roles, tutor access, and account status. Tutor is an add-on
+          capability — any role can also be a tutor.
         </p>
       </div>
 
@@ -119,8 +121,8 @@ export default function AdminUsersPage() {
             <SelectItem value="all">All Roles</SelectItem>
             <SelectItem value="player">Player</SelectItem>
             <SelectItem value="organizer">Organizer</SelectItem>
-            <SelectItem value="tutor">Tutor</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="tutor">Tutors</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -132,6 +134,7 @@ export default function AdminUsersPage() {
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Tutor</TableHead>
               <TableHead className="hidden md:table-cell">District</TableHead>
               <TableHead className="hidden md:table-cell">Joined</TableHead>
               <TableHead className="hidden md:table-cell">Status</TableHead>
@@ -158,10 +161,23 @@ export default function AdminUsersPage() {
                     <SelectContent>
                       <SelectItem value="player">Player</SelectItem>
                       <SelectItem value="organizer">Organizer</SelectItem>
-                      <SelectItem value="tutor">Tutor</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={!!u.is_tutor}
+                      onCheckedChange={(v) => updateUser(u.id, { is_tutor: v })}
+                      aria-label="Tutor access"
+                    />
+                    {u.is_tutor && (
+                      <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/20">
+                        Tutor
+                      </Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                   {u.district?.name || '-'}

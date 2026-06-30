@@ -14,6 +14,7 @@ export async function getCurrentUser() {
     email: string;
     name: string;
     role: UserRole;
+    is_tutor: boolean;
     district_id: string | null;
   };
 }

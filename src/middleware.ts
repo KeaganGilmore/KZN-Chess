@@ -15,7 +15,7 @@ export default withAuth(
 
     // Tutor toolkit - tutor or admin only
     if (pathname.startsWith('/learn/tutor')) {
-      if (token?.role !== 'admin' && token?.role !== 'tutor') {
+      if (!token?.is_tutor && token?.role !== 'admin') {
         return NextResponse.redirect(new URL('/auth', req.url));
       }
     }

@@ -11,6 +11,7 @@ import {
   User,
   ChevronDown,
   PlusCircle,
+  GraduationCap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -73,7 +74,9 @@ export function Navbar() {
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                   isActiveLink(pathname, link.href)
                     ? 'text-primary bg-primary/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                    : link.href === '/learn'
+                      ? 'text-primary hover:bg-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                 )}
               >
                 {link.label}
@@ -103,6 +106,12 @@ export function Navbar() {
                     <p className="text-xs text-primary capitalize">{user?.role}</p>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/learn" className="cursor-pointer">
+                      <GraduationCap className="w-4 h-4 mr-2" />
+                      Train / Learn
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/my-tournaments" className="cursor-pointer">
                       <Trophy className="w-4 h-4 mr-2" />

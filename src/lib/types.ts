@@ -1,4 +1,4 @@
-export type UserRole = 'player' | 'organizer' | 'admin' | 'tutor';
+export type UserRole = 'player' | 'organizer' | 'admin';
 export type TournamentStatus = 'pending' | 'approved' | 'rejected' | 'featured';
 export type TimeControlType = 'classical' | 'rapid' | 'blitz' | 'bullet';
 
@@ -19,6 +19,7 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  is_tutor: boolean;
   district_id: string | null;
   is_active: boolean;
   created_at: string;
