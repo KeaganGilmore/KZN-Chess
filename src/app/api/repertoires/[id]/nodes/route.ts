@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
 
-const NODE_COLS = 'id, parent_id, fen, move_san, move_uci, notes, tags';
+const NODE_COLS =
+  'id, parent_id, fen, move_san, move_uci, notes, tags, comment_before, comment_after, arrows';
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const user = await getCurrentUser();

@@ -25,23 +25,25 @@ export default async function RepertoirePage({ params }: { params: { id: string 
 
   const { data: nodes } = await supabase
     .from('repertoire_nodes')
-    .select('id, parent_id, fen, move_san, move_uci, notes, tags')
+    .select('id, parent_id, fen, move_san, move_uci, notes, tags, comment_before, comment_after, arrows')
     .eq('repertoire_id', params.id)
     .order('created_at');
 
   return (
     <PageTransition>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <Link
-          href="/learn/openings"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" /> Repertoires
-        </Link>
-        <h1 className="text-2xl font-bold mb-6 flex items-center gap-3">
-          {repertoire.name}
-          <Badge variant="outline" className="capitalize">{repertoire.color}</Badge>
-        </h1>
+      <div className="md:max-w-6xl md:mx-auto md:px-6 py-3 md:py-6">
+        <div className="px-3 md:px-0">
+          <Link
+            href="/learn/openings"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-2"
+          >
+            <ArrowLeft className="w-4 h-4" /> Repertoires
+          </Link>
+          <h1 className="text-xl font-bold mb-3 flex items-center gap-3">
+            {repertoire.name}
+            <Badge variant="outline" className="capitalize">{repertoire.color}</Badge>
+          </h1>
+        </div>
         <RepertoireBuilder repertoire={repertoire} initialNodes={nodes || []} />
       </div>
     </PageTransition>

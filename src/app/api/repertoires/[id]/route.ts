@@ -16,7 +16,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   const { data: nodes } = await supabase
     .from('repertoire_nodes')
-    .select('id, parent_id, fen, move_san, move_uci, notes, tags')
+    .select('id, parent_id, fen, move_san, move_uci, notes, tags, comment_before, comment_after, arrows')
     .eq('repertoire_id', params.id)
     .order('created_at');
   return NextResponse.json({ repertoire, nodes: nodes || [] });

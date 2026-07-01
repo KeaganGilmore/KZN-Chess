@@ -1,6 +1,12 @@
 export const START_FEN =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+export interface NodeArrow {
+  from: string;
+  to: string;
+  color: string;
+}
+
 export interface RepNode {
   id: string;
   parent_id: string | null;
@@ -9,6 +15,9 @@ export interface RepNode {
   move_uci: string | null;
   notes: string | null;
   tags: string[];
+  comment_before: string | null;
+  comment_after: string | null;
+  arrows: NodeArrow[];
 }
 
 export function childrenOf(nodes: RepNode[], parentId: string | null): RepNode[] {
