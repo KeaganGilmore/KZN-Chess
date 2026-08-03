@@ -4,13 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
 import { PuzzleBoard } from '@/components/puzzles/puzzle-board';
+import { TurnBanner } from '@/components/puzzles/turn-banner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { puzzleDiagram } from '@/lib/puzzles/diagram';
 
 interface P {
   id: string;
   fen: string;
+  moves: string;
   rating: number;
   themes: string[];
 }
@@ -31,10 +34,13 @@ export function SetPuzzleList({ setId, puzzles }: { setId: string; puzzles: P[] 
 
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {puzzles.map((p) => (
+      {puzzles.map((p) => {
+        const d = puzzleDiagram(p.fen, p.moves);
+        return (
         <Card key={p.id}>
           <CardContent className="p-4 space-y-3">
-            <PuzzleBoard fen={p.fen} boardWidth={220} />
+            <TurnBanner turn={d.turn} className="max-w-[220px]" />
+            <PuzzleBoard fen={d.fen} boardWidth={220} />
             <div className="flex items-center justify-between">
               <div className="flex flex-wrap gap-1.5">
                 <Badge variant="outline">{p.rating}</Badge>
@@ -50,7 +56,8 @@ export function SetPuzzleList({ setId, puzzles }: { setId: string; puzzles: P[] 
             </div>
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
     </div>
   );
 }

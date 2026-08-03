@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Puzzle, BookOpen, Brain, GraduationCap } from 'lucide-react';
+import { Puzzle, BookOpen, Brain, GraduationCap, Scale } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Card, CardContent } from '@/components/ui/card';
@@ -56,6 +56,23 @@ export default async function LearnPage() {
               </Card>
             </Link>
           ))}
+
+          {/* Standalone self-contained trainer served from /public — plain anchor,
+              not next/link, since it is a static file rather than an app route. */}
+          <a href="/fide-arbiter-trainer.html">
+            <Card className="h-full hover:border-primary/30 transition-colors">
+              <CardContent className="p-6">
+                <div className="inline-flex w-11 h-11 rounded-xl bg-primary/10 items-center justify-center mb-3">
+                  <Scale className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="font-heading font-semibold text-lg mb-1">FIDE Arbiter Trainer</h2>
+                <p className="text-sm text-muted-foreground">
+                  Study the Laws of Chess, pairings, tie-breaks and fair play, then drill
+                  scenario rulings with timed quizzes and per-category scoring.
+                </p>
+              </CardContent>
+            </Card>
+          </a>
 
           {isTutor && (
             <Link href="/learn/tutor">

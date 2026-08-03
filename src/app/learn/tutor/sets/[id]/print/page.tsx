@@ -1,40 +1,13 @@
 import { redirect, notFound } from 'next/navigation';
-import { Chess } from 'chess.js';
 import { getTutor } from '@/lib/tutor/access';
 import { createServerClient } from '@/lib/supabase/server';
 import { PuzzleBoard } from '@/components/puzzles/puzzle-board';
+import { TurnBanner } from '@/components/puzzles/turn-banner';
 import { PrintButton } from '@/components/tutor/print-button';
+import { puzzleDiagram, puzzleSolutionSan } from '@/lib/puzzles/diagram';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Print session set' };
-
-// Diagram = the position the student sees (after the puzzle's setup move).
-function diagram(fen: string, moves: string) {
-  try {
-    const g = new Chess(fen);
-    const first = moves.split(' ').filter(Boolean)[0];
-    if (first) g.move({ from: first.slice(0, 2), to: first.slice(2, 4), promotion: first.slice(4) || undefined });
-    return { fen: g.fen(), turn: g.turn() as 'w' | 'b' };
-  } catch {
-    return { fen, turn: 'w' as const };
-  }
-}
-
-// Human-readable solution (SAN) for the continuation after the setup move.
-function solutionSan(fen: string, moves: string): string[] {
-  try {
-    const g = new Chess(fen);
-    const all = moves.split(' ').filter(Boolean);
-    const sans: string[] = [];
-    all.forEach((u, i) => {
-      const mv = g.move({ from: u.slice(0, 2), to: u.slice(2, 4), promotion: u.slice(4) || undefined });
-      if (i >= 1 && mv) sans.push(mv.san);
-    });
-    return sans;
-  } catch {
-    return [];
-  }
-}
 
 export default async function PrintSetPage({ params }: { params: { id: string } }) {
   const tutor = await getTutor();
@@ -72,15 +45,14 @@ export default async function PrintSetPage({ params }: { params: { id: string } 
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           {puzzles.map((p: any, i: number) => {
-            const d = diagram(p.fen, p.moves);
-            const sans = solutionSan(p.fen, p.moves);
+            const d = puzzleDiagram(p.fen, p.moves);
+            const sans = puzzleSolutionSan(p.fen, p.moves);
             return (
               <div key={p.id} className="break-inside-avoid border border-gray-300 rounded-md p-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="font-bold">#{i + 1}</span>
-                  <span className="text-sm text-gray-600">
-                    {d.turn === 'w' ? 'White' : 'Black'} to move · {p.rating}
-                  </span>
+                  <TurnBanner turn={d.turn} />
+                  <span className="text-sm text-gray-600">{p.rating}</span>
                 </div>
                 <PuzzleBoard fen={d.fen} boardWidth={260} />
                 <p className="text-sm mt-3">

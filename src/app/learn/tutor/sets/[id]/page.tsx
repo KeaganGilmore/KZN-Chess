@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Printer } from 'lucide-react';
+import { ArrowLeft, Plus, Printer, Presentation } from 'lucide-react';
 import { getTutor } from '@/lib/tutor/access';
 import { createServerClient } from '@/lib/supabase/server';
 import { PageTransition } from '@/components/ui/page-transition';
@@ -26,7 +26,7 @@ export default async function SetPage({ params }: { params: { id: string } }) {
 
   const { data: rows } = await supabase
     .from('session_set_puzzles')
-    .select('sort_order, puzzle:puzzles(id, fen, rating, themes)')
+    .select('sort_order, puzzle:puzzles(id, fen, moves, rating, themes)')
     .eq('session_set_id', params.id)
     .order('sort_order');
   const puzzles = (rows || []).map((r: any) => r.puzzle).filter(Boolean);
@@ -59,8 +59,13 @@ export default async function SetPage({ params }: { params: { id: string } }) {
               </Button>
             </Link>
             <Link href={`/learn/tutor/sets/${set.id}/print`} target="_blank">
-              <Button size="sm">
+              <Button variant="outline" size="sm">
                 <Printer className="w-4 h-4 mr-1.5" /> Print / export
+              </Button>
+            </Link>
+            <Link href={`/learn/tutor/sets/${set.id}/display`} target="_blank">
+              <Button size="sm">
+                <Presentation className="w-4 h-4 mr-1.5" /> Classroom
               </Button>
             </Link>
           </div>

@@ -7,6 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PuzzleBoard } from '@/components/puzzles/puzzle-board';
+import { TurnBanner } from '@/components/puzzles/turn-banner';
+import { puzzleDiagram } from '@/lib/puzzles/diagram';
 
 export const metadata = { title: 'Puzzles - KZN Chess' };
 export const dynamic = 'force-dynamic';
@@ -49,6 +51,7 @@ async function getData() {
 export default async function PuzzlesPage() {
   const { puzzles, stats } = await getData();
   const featured = puzzles[0];
+  const featuredDiagram = featured ? puzzleDiagram(featured.fen, featured.moves) : null;
 
   return (
     <PageTransition>
@@ -94,8 +97,9 @@ export default async function PuzzlesPage() {
           <div className="grid lg:grid-cols-2 gap-8">
             <Card>
               <CardContent className="pt-6 space-y-4">
-                <Link href={`/learn/puzzles/${featured.id}`} className="block">
-                  <PuzzleBoard fen={featured.fen} />
+                <Link href={`/learn/puzzles/${featured.id}`} className="block space-y-2">
+                  <TurnBanner turn={featuredDiagram!.turn} className="max-w-[440px]" />
+                  <PuzzleBoard fen={featuredDiagram!.fen} />
                 </Link>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">Rating {featured.rating}</Badge>
