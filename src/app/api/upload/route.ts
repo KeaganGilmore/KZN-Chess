@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { createServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
+import { getUploadDir } from '@/lib/uploads';
+
+const EXT_BY_TYPE: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
 
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
@@ -26,15 +36,37 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'File size must be under 5MB' }, { status: 400 });
   }
 
-  const supabase = createServerClient();
-
-  const ext = file.name.split('.').pop() || 'jpg';
+  // Extension from the validated MIME type, never from the client filename.
+  const ext = EXT_BY_TYPE[file.type];
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const filePath = `tournament-media/${fileName}`;
+  const FOLDERS = new Set(['tournament-media', 'store']);
+  const requested = formData.get('folder');
+  const folder =
+    typeof requested === 'string' && FOLDERS.has(requested) ? requested : 'tournament-media';
+  // Product images are admin-only.
+  if (folder === 'store' && user.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  const filePath = `${folder}/${fileName}`;
 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
+  // Local disk (a Railway volume in production), served by /api/media.
+  const uploadDir = getUploadDir();
+  if (uploadDir) {
+    try {
+      await mkdir(path.join(uploadDir, folder), { recursive: true });
+      await writeFile(path.join(uploadDir, folder, fileName), buffer, { flag: 'wx' });
+    } catch (err) {
+      console.error('Upload write failed:', err);
+      return NextResponse.json({ error: 'Could not save the file' }, { status: 500 });
+    }
+    return NextResponse.json({ url: `/api/media/${filePath}` });
+  }
+
+  // Legacy: Supabase Storage.
+  const supabase = createServerClient();
   const { error: uploadError } = await supabase.storage
     .from('media')
     .upload(filePath, buffer, {

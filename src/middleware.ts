@@ -21,7 +21,11 @@ export default withAuth(
     }
 
     // Authenticated-only routes
-    if (pathname.startsWith('/submit') || pathname.startsWith('/my-tournaments')) {
+    if (
+      pathname.startsWith('/submit') ||
+      pathname.startsWith('/my-tournaments') ||
+      pathname.startsWith('/my-orders')
+    ) {
       if (!token) {
         return NextResponse.redirect(new URL('/auth', req.url));
       }
@@ -33,11 +37,12 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const pathname = req.nextUrl.pathname;
-        // Always require auth for admin, submit, and my-tournaments routes
+        // Always require auth for admin, submit, my-tournaments and my-orders routes
         if (
           pathname.startsWith('/admin') ||
           pathname.startsWith('/submit') ||
           pathname.startsWith('/my-tournaments') ||
+          pathname.startsWith('/my-orders') ||
           pathname.startsWith('/learn/tutor')
         ) {
           return !!token;
@@ -53,6 +58,7 @@ export const config = {
     '/admin/:path*',
     '/submit/:path*',
     '/my-tournaments/:path*',
+    '/my-orders/:path*',
     '/learn/tutor/:path*',
   ],
 };

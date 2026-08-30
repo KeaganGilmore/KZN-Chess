@@ -11,12 +11,14 @@ import {
   Megaphone,
   ScrollText,
   UserCog,
+  ShoppingBag,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const links = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/tournaments', label: 'Tournaments', icon: Trophy },
+  { href: '/admin/store', label: 'Store', icon: ShoppingBag },
   { href: '/admin/organizers', label: 'Organizers', icon: UserCog },
   { href: '/admin/districts', label: 'Districts', icon: MapPin },
   { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
@@ -27,6 +29,8 @@ const links = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const isActive = (href: string) =>
+    href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
 
   return (
     <>
@@ -42,7 +46,7 @@ export function AdminSidebar() {
             href={link.href}
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-              pathname === link.href
+              isActive(link.href)
                 ? 'bg-primary/10 text-primary'
                 : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
             )}
@@ -62,7 +66,7 @@ export function AdminSidebar() {
               href={link.href}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors shrink-0',
-                pathname === link.href
+                isActive(link.href)
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
               )}

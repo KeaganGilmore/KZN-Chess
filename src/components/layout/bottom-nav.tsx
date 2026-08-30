@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { Home, Trophy, Newspaper, User, LayoutDashboard, PlusCircle, GraduationCap } from 'lucide-react';
+import { Home, ShoppingBag, Trophy, Newspaper, User, LayoutDashboard, PlusCircle, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function BottomNav() {
@@ -11,15 +11,18 @@ export function BottomNav() {
   const { data: session } = useSession();
   const user = session?.user as any;
 
+  const isAdmin = user?.role === 'admin';
+  // Keep the bar to at most 7 items so every target stays ≥44px on a 360px
+  // phone: admins get Admin in place of Submit (it's reachable from the
+  // admin dashboard and the desktop menu).
   const links = [
     { href: '/', label: 'Home', icon: Home },
+    { href: '/store', label: 'Store', icon: ShoppingBag },
     { href: '/tournaments', label: 'Events', icon: Trophy },
-    ...(session ? [{ href: '/submit', label: 'Submit', icon: PlusCircle }] : []),
+    ...(session && !isAdmin ? [{ href: '/submit', label: 'Submit', icon: PlusCircle }] : []),
     { href: '/feed', label: 'Feed', icon: Newspaper },
     { href: '/learn', label: 'Learn', icon: GraduationCap },
-    ...(user?.role === 'admin'
-      ? [{ href: '/admin', label: 'Admin', icon: LayoutDashboard }]
-      : []),
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: LayoutDashboard }] : []),
     { href: '/auth', label: session ? 'Account' : 'Sign In', icon: User },
   ];
 

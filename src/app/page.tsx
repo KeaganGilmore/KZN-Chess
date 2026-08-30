@@ -5,7 +5,18 @@ import { UpcomingTournaments } from '@/components/home/upcoming-tournaments';
 import { LearnCta } from '@/components/home/learn-cta';
 import { AnnouncementBanner } from '@/components/home/announcement-banner';
 import { AdUnit } from '@/components/ads/ad-unit';
+import { StoreHero } from '@/components/home/store-hero';
+import { FeaturedProducts } from '@/components/home/featured-products';
+import { CategoryStrip } from '@/components/home/category-strip';
 import type { Tournament, SiteContent, Announcement } from '@/lib/types';
+import type { Product, StoreCategory, StoreSettings } from '@/lib/store/types';
+import {
+  DEFAULT_SETTINGS,
+  countActiveProducts,
+  getStoreSettings,
+  listCategories,
+  listProducts,
+} from '@/lib/store/catalog';
 
 // Serve cached pages for 60s; tournament/content changes appear within a minute
 export const revalidate = 60;
@@ -26,6 +37,45 @@ const EMPTY_STATS: SiteStats = {
   tournaments_hosted: 0,
   players_registered: 0,
 };
+
+interface StoreData {
+  settings: StoreSettings;
+  featured: Product[];
+  /** true when no product is flagged featured and `featured` holds the newest ones instead */
+  featuredFallback: boolean;
+  categories: StoreCategory[];
+  productCount: number;
+}
+
+const EMPTY_STORE: StoreData = {
+  settings: DEFAULT_SETTINGS,
+  featured: [],
+  featuredFallback: false,
+  categories: [],
+  productCount: 0,
+};
+
+// Store-first homepage data. Isolated from the tournament data so a store
+// failure (or the store migration not being applied yet) never breaks the
+// page — it simply falls back to the tournament hero.
+async function getStoreData(): Promise<StoreData> {
+  try {
+    const settings = await getStoreSettings();
+    if (!settings.store_enabled) return { ...EMPTY_STORE, settings };
+    const [featuredOnly, categories, productCount] = await Promise.all([
+      listProducts({ featured: true, limit: 8 }),
+      listCategories(),
+      countActiveProducts(),
+    ]);
+    // Nothing flagged as featured yet: show the newest products instead of an empty section.
+    const featuredFallback = featuredOnly.length === 0;
+    const featured = featuredFallback ? await listProducts({ limit: 8 }) : featuredOnly;
+    return { settings, featured, featuredFallback, categories, productCount };
+  } catch (err) {
+    console.error('Home page getStoreData failed:', err);
+    return EMPTY_STORE;
+  }
+}
 
 async function getData() {
   try {
@@ -94,12 +144,30 @@ async function getData() {
 }
 
 export default async function HomePage() {
-  const { tournaments, content, announcement, stats } = await getData();
+  const [{ tournaments, content, announcement, stats }, store] = await Promise.all([
+    getData(),
+    getStoreData(),
+  ]);
+  const storeFirst = store.settings.store_enabled;
 
   return (
     <>
       {announcement && <AnnouncementBanner announcement={announcement} />}
-      <HeroSection content={content.hero} />
+      {storeFirst ? (
+        <>
+          <StoreHero
+            storeName={store.settings.store_name}
+            tagline={store.settings.tagline}
+            productCount={store.productCount}
+            deliveryEnabled={store.settings.delivery_enabled}
+            collectionEnabled={store.settings.collection_enabled}
+          />
+          <FeaturedProducts products={store.featured} fallback={store.featuredFallback} />
+          <CategoryStrip categories={store.categories} />
+        </>
+      ) : (
+        <HeroSection content={content.hero} />
+      )}
       <StatsSection stats={stats} />
       <AdUnit
         slot="HOME_BANNER"

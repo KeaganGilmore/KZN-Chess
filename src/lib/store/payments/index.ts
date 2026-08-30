@@ -1,0 +1,27 @@
+import type { StoreSettings } from '../types';
+import type { PaymentProvider } from './types';
+import { manualEft } from './manual-eft';
+
+export type { PaymentInit, PaymentProvider, WebhookResult } from './types';
+
+/** Registry. Add PayFast/Yoco here later; checkout and order pages need no changes. */
+const PROVIDERS: PaymentProvider[] = [manualEft];
+
+export function getPaymentProvider(id: string): PaymentProvider | null {
+  return PROVIDERS.find((p) => p.id === id) ?? null;
+}
+
+export function availableProviders(settings: StoreSettings): PaymentProvider[] {
+  return PROVIDERS.filter((p) => p.isAvailable(settings));
+}
+
+export interface ProviderOption {
+  id: string;
+  label: string;
+  description: string;
+}
+
+/** Serialisable summary for client components. */
+export function providerOptions(settings: StoreSettings): ProviderOption[] {
+  return availableProviders(settings).map(({ id, label, description }) => ({ id, label, description }));
+}

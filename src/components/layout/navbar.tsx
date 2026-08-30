@@ -12,8 +12,10 @@ import {
   ChevronDown,
   PlusCircle,
   GraduationCap,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CartButton } from '@/components/store/cart-button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +26,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { href: '/', label: 'Home' },
+  { href: '/store', label: 'Store' },
   { href: '/tournaments', label: 'Tournaments' },
   { href: '/feed', label: 'Feed' },
   { href: '/gallery', label: 'Gallery' },
@@ -86,6 +88,7 @@ export function Navbar() {
 
           {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-3">
+            <CartButton />
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -116,6 +119,12 @@ export function Navbar() {
                     <Link href="/my-tournaments" className="cursor-pointer">
                       <Trophy className="w-4 h-4 mr-2" />
                       My Tournaments
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/my-orders" className="cursor-pointer">
+                      <Package className="w-4 h-4 mr-2" />
+                      My Orders
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -154,8 +163,10 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile: just show the logo, bottom nav handles navigation */}
-          <div className="md:hidden" />
+          {/* Mobile: cart only — the bottom nav handles navigation */}
+          <div className="md:hidden flex items-center">
+            <CartButton />
+          </div>
         </div>
       </div>
     </nav>

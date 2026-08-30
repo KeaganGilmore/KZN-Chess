@@ -3,6 +3,7 @@ import { Space_Grotesk, Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { SessionProvider } from '@/components/providers/session-provider';
+import { CartProvider } from '@/components/store/cart-provider';
 import { Navbar } from '@/components/layout/navbar';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { Footer } from '@/components/layout/footer';
@@ -59,11 +60,13 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
         <SessionProvider>
-          <Navbar />
-          <main className="flex-1 pt-16 pb-16 md:pb-0">{children}</main>
-          <Footer />
-          <BottomNav />
-          <Toaster />
+          <CartProvider>
+            <Navbar />
+            <main className="flex-1 pt-16 pb-16 md:pb-0">{children}</main>
+            <Footer />
+            <BottomNav />
+            <Toaster />
+          </CartProvider>
         </SessionProvider>
       </body>
     </html>
