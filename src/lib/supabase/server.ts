@@ -1,28 +1,23 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createDirectClient } from '@/lib/db';
 
 /**
- * Server-side database client (service role — never import in client code).
+ * Server-side database client (never import in client components).
  *
- * The REST endpoint is either Supabase or a self-hosted PostgREST (Railway).
- * supabase-js prefixes every request with `/rest/v1`, which bare PostgREST
- * does not have, so when SUPABASE_REST_BARE=true the prefix is stripped from
- * each request. Switching between the two is purely an environment change.
+ * DB_DIRECT=true (production on Railway): queries run as SQL over a pg pool
+ * against DATABASE_URL on the private network — no Supabase, no PostgREST
+ * service. src/lib/db implements the query-builder surface this codebase
+ * uses, so call sites are identical in both modes; the cast below keeps the
+ * original compile-time types at every call site.
+ *
+ * Otherwise: the original hosted-Supabase client (legacy / local dev).
  */
-const REST_PREFIX = '/rest/v1';
-const bare = process.env.SUPABASE_REST_BARE === 'true';
-
-function stripRestPrefix(input: string | URL | Request): string | URL | Request {
-  if (typeof input === 'string') return input.replace(REST_PREFIX, '');
-  if (input instanceof URL) return new URL(input.toString().replace(REST_PREFIX, ''));
-  return input;
-}
-
-export function createServerClient() {
+export function createServerClient(): SupabaseClient {
+  if (process.env.DB_DIRECT === 'true') {
+    return createDirectClient() as unknown as SupabaseClient;
+  }
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    bare
-      ? { global: { fetch: (input, init) => fetch(stripRestPrefix(input), init) } }
-      : undefined
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 }

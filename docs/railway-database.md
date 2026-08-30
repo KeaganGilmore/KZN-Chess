@@ -1,91 +1,81 @@
-# Database on Railway (PostgREST + Postgres)
+# Database on Railway (direct Postgres)
 
-The app talks to its database through Supabase's REST protocol (`supabase-js`).
-Since August 2026 that REST layer is a self-hosted **PostgREST** container on
-Railway in front of a Railway **Postgres** service, instead of a hosted
-Supabase project (the free tier's 500 MB cap could not hold the 1.25 GB
-Lichess puzzle table). The application code is unchanged; only environment
-variables differ.
+Since August 2026 the database is a Railway **Postgres** service and the app
+talks to it **directly over the private network** with a connection pool —
+no hosted Supabase, no PostgREST, no API layer. (The original Supabase
+project hit the free tier's 500 MB cap: the Lichess puzzle table alone is
+1.25 GB.)
 
-## Services (Railway project: KZN Chess)
+The application code still *calls* the supabase-js query-builder API in 79
+files; `createServerClient()` (src/lib/supabase/server.ts) returns a
+direct-SQL implementation of exactly that call surface (src/lib/db —
+parsers, FK-introspected embedded joins, typed parameter binding, `{ data,
+error }` semantics), selected by `DB_DIRECT=true`. Without the flag it falls
+back to the original hosted-Supabase client, so local dev against a Supabase
+project still works.
 
-| Service | Image / type | Purpose |
-|---|---|---|
-| `Postgres` | Railway Postgres plugin | The database (volume-backed) |
-| `postgrest` | `postgrest/postgrest` | REST API the app calls (public URL, JWT-only — no anonymous role) |
-| app service | this repo (Nixpacks) | Next.js; has a volume mounted at `/data/uploads` for images |
+## Services
 
-## Environment variables
+| Service | Purpose |
+|---|---|
+| app (this repo) | Next.js; volume mounted at `/data/uploads` for images |
+| Postgres | Railway Postgres plugin, volume-backed |
 
-**postgrest**
+## App service environment
 
 | Variable | Value |
 |---|---|
-| `PGRST_DB_URI` | `postgresql://authenticator:<pw>@<Postgres private host>:5432/railway` |
-| `PGRST_DB_SCHEMAS` | `public` |
-| `PGRST_JWT_SECRET` | from `node scripts/mint-postgrest-keys.mjs` |
-| `PGRST_SERVER_HOST` | `*` |
-| `PGRST_SERVER_PORT` | `3000` |
-| `PGRST_DB_POOL` | `10` |
-
-`PGRST_DB_ANON_ROLE` is deliberately **unset**: requests without a valid
-service-role JWT are rejected with 401.
-
-**app service**
-
-| Variable | Value |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://<postgrest domain>` |
-| `SUPABASE_REST_BARE` | `true` (strips the `/rest/v1` prefix supabase-js adds) |
-| `SUPABASE_SERVICE_ROLE_KEY` | service key from `mint-postgrest-keys.mjs` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key from the same script (unused by the app, kept for the client module) |
-| `DATABASE_URL` | Railway Postgres URL (private) |
+| `DB_DIRECT` | `true` |
+| `DATABASE_URL` | the Postgres service's private URL (`postgresql://postgres:…@postgres.railway.internal:5432/railway`) |
 | `UPLOAD_DIR` | `/data/uploads` |
+
+`NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` /
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` are unused in direct mode.
 
 ## One-time bootstrap / restore
 
-Postgres client tools are required (`psql`). Order matters:
+Requires `psql`. Order matters:
 
 ```bash
-psql "$DATABASE_URL" -v authenticator_password='...' -f supabase/postgrest-bootstrap.sql
-psql "$DATABASE_URL" -f supabase/schema.sql
-for f in supabase/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done
-psql "$DATABASE_URL" -f supabase/postgrest-grants.sql
+psql "$DATABASE_PUBLIC_URL" -f supabase/db-bootstrap.sql   # extensions + auth.* stub
+psql "$DATABASE_PUBLIC_URL" -f supabase/schema.sql
+for f in supabase/migrations/*.sql; do psql "$DATABASE_PUBLIC_URL" -v ON_ERROR_STOP=1 -f "$f"; done
 # then load data (COPY blocks) if restoring from a dump
 ```
 
-`postgrest-bootstrap.sql` creates the `anon` / `authenticated` /
-`service_role` / `authenticator` roles and a stub `auth.uid()` / `auth.role()`
-/ `auth.jwt()` schema so the existing RLS policies compile.
-`postgrest-grants.sql` must be re-run after any migration that adds tables,
-sequences or functions (it also `NOTIFY pgrst` to reload the schema cache).
+`db-bootstrap.sql` creates `uuid-ossp`/`pgcrypto` and a stub `auth.uid()` /
+`auth.role()` / `auth.jwt()` schema so the RLS policies in schema.sql compile
+unchanged. The app connects as the database owner, which bypasses RLS the
+same way Supabase's service role did.
 
 ## Applying a new migration
 
 ```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/NNN_name.sql
-psql "$DATABASE_URL" -f supabase/postgrest-grants.sql
+psql "$DATABASE_PUBLIC_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/NNN_name.sql
 ```
 
-## Keys
+No schema-cache reload is needed (there is no PostgREST); the adapter
+re-introspects foreign keys on each deploy (process start).
 
-A Supabase "key" is an HS256 JWT whose `role` claim is a Postgres role.
-`node scripts/mint-postgrest-keys.mjs [existing-secret]` prints
-`PGRST_JWT_SECRET`, a `service_role` key and an `anon` key. Rotating the
-secret invalidates all keys: update `PGRST_JWT_SECRET` on `postgrest` and the
-two keys on the app service together.
+## Adding new query patterns
+
+src/lib/db supports the audited supabase-js subset (see
+`src/lib/db/builder.ts`); unsupported operators **throw** rather than guess.
+If a new call site needs a new operator/feature, add it to the builder WITH a
+unit test in `src/lib/db/__tests__/`, or write plain SQL via
+`getPool().query(...)`.
 
 ## Uploads
 
 With `UPLOAD_DIR` set, `/api/upload` writes files to
 `<UPLOAD_DIR>/<folder>/<name>` and returns `/api/media/<folder>/<name>`,
 served by `src/app/api/media/[...path]/route.ts` with immutable caching. The
-directory is a Railway volume, so it survives deploys. Without `UPLOAD_DIR`
-the route falls back to Supabase Storage (legacy).
+directory is a Railway volume, so it survives deploys.
 
 ## Backups
 
-Railway does not back up the database for you on the Hobby plan. Enable
-volume backups on the Postgres service in the Railway dashboard, and/or run
-`pg_dump "$DATABASE_PUBLIC_URL" -Fc -f kznchess-$(date +%F).dump` periodically
-and keep the file off Railway.
+Railway does not back up the database for you. Enable volume backups on the
+Postgres service in the Railway dashboard, and/or run
+`pg_dump "$DATABASE_PUBLIC_URL" -Fc -f kznchess-$(date +%F).dump`
+periodically and keep a copy off Railway. The 2026-08-15 Supabase outage is
+the cautionary tale.
