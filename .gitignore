@@ -144,3 +144,4 @@ vite.config.ts.timestamp-*
 .vite/
 # Local data dumps (Lichess puzzle DB, etc.)
 data/
+.uploads/
