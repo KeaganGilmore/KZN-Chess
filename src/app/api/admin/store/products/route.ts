@@ -55,22 +55,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  if (variants.length) {
-    const { error: ve } = await supabase.from('product_variants').insert(
-      variants.map(({ id: _id, ...v }, i) => ({
-        ...v,
+  // Insert variants one at a time (not a bulk insert) so each row's
+  // freshly-generated id can be captured against its client_key, letting
+  // images below reference "this variant" before it existed in the DB.
+  const variantIdByKey = new Map<string, string>();
+  for (const [i, v] of variants.entries()) {
+    // Explicit column list (never `id`) — this is a create, so any `id` the
+    // client sent is ignored rather than inserted.
+    const { data: inserted, error: ve } = await supabase
+      .from('product_variants')
+      .insert({
         product_id: product.id,
+        option_label: v.option_label,
+        name: v.name,
+        sku: v.sku,
+        price_delta_cents: v.price_delta_cents,
+        stock_qty: v.stock_qty,
+        is_active: v.is_active,
         sort_order: v.sort_order ?? i,
-      }))
-    );
+      })
+      .select('id')
+      .single();
     if (ve) {
       return NextResponse.json({ error: ve.message }, { status: 500 });
     }
+    variantIdByKey.set(v.client_key, inserted.id);
   }
 
   if (images.length) {
     const { error: ie } = await supabase.from('product_images').insert(
-      images.map((img, i) => ({ ...img, product_id: product.id, sort_order: i }))
+      images.map(({ variant_key, ...img }, i) => ({
+        ...img,
+        product_id: product.id,
+        sort_order: i,
+        variant_id: variant_key ? (variantIdByKey.get(variant_key) ?? null) : null,
+      }))
     );
     if (ie) {
       return NextResponse.json({ error: ie.message }, { status: 500 });

@@ -6,18 +6,40 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from './cart-provider';
 import type { Product } from '@/lib/store/types';
-import { activeVariants, availableStock, hasVariants, unitPrice } from '@/lib/store/product-helpers';
+import {
+  activeVariants,
+  availableStock,
+  defaultVariantId,
+  hasVariants,
+  unitPrice,
+} from '@/lib/store/product-helpers';
 import { formatZar } from '@/lib/store/money';
 import { MAX_QTY_PER_LINE } from '@/lib/store/cart';
 import { cn } from '@/lib/utils';
 
-export function AddToCart({ product }: { product: Product }) {
+/**
+ * `variantId`/`onVariantChange` are optional: pass both to let a parent (e.g.
+ * a gallery that needs to know the selection too) control which variant is
+ * picked; omit both to manage selection internally, standalone.
+ */
+export function AddToCart({
+  product,
+  variantId: controlledVariantId,
+  onVariantChange,
+}: {
+  product: Product;
+  variantId?: string | null;
+  onVariantChange?: (variantId: string | null) => void;
+}) {
   const { add, items } = useCart();
   const { toast } = useToast();
   const variants = activeVariants(product);
-  const [variantId, setVariantId] = useState<string | null>(
-    variants.length === 1 ? variants[0].id : null
+  const [internalVariantId, setInternalVariantId] = useState<string | null>(() =>
+    defaultVariantId(product)
   );
+  const controlled = onVariantChange !== undefined;
+  const variantId = controlled ? (controlledVariantId ?? null) : internalVariantId;
+  const setVariantId = controlled ? onVariantChange : setInternalVariantId;
   const [qty, setQty] = useState(1);
   const variant = variants.find((v) => v.id === variantId) ?? null;
   const needsVariant = hasVariants(product) && !variant;

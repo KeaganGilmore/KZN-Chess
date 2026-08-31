@@ -32,6 +32,10 @@ export type CheckoutBody = z.infer<typeof checkoutSchema>;
 
 export const variantSchema = z.object({
   id: z.string().uuid().optional(),
+  // Stable per-row token the admin form assigns to every variant (existing
+  // or new) so an image can reference "this variant" before it has a real
+  // database id yet — see products POST/PATCH for how it's resolved.
+  client_key: z.string().trim().min(1).max(100),
   option_label: z.string().trim().min(1).max(40).default('Option'),
   name: z.string().trim().min(1).max(60),
   sku: z.string().trim().max(60).optional().nullable(),
@@ -62,6 +66,10 @@ export const imageSchema = z.object({
   url: imageUrlSchema,
   alt: z.string().trim().max(160).optional().nullable(),
   sort_order: z.number().int().default(0),
+  // References a variant's client_key (see variantSchema); null/omitted =
+  // a general photo, shown for any variant with no dedicated photo of its
+  // own. Resolved to a real variant_id server-side after variants are saved.
+  variant_key: z.string().trim().min(1).max(100).nullable().default(null),
 });
 
 export const productSchema = z

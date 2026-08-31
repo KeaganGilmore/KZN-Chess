@@ -1,5 +1,5 @@
 import type { CartItem, Fulfilment, PricedCart, PricedLine, Product, StoreSettings } from './types';
-import { activeVariants, hasVariants, primaryImage, unitPrice } from './product-helpers';
+import { activeVariants, hasVariants, imagesForVariant, unitPrice } from './product-helpers';
 
 export const MAX_QTY_PER_LINE = 20;
 
@@ -52,7 +52,7 @@ export function priceCart(
       product_slug: p?.slug ?? null,
       product_name: p?.name ?? 'Unavailable item',
       variant_name: null,
-      image_url: p ? primaryImage(p) : null,
+      image_url: p ? (imagesForVariant(p)[0]?.url ?? null) : null,
       unit_price_cents: p?.price_cents ?? 0,
       quantity: it.quantity,
       line_total_cents: 0,
@@ -67,6 +67,9 @@ export function priceCart(
       if (!v) return { ...base, problem: 'inactive' };
       base.variant_name = v.name;
       base.unit_price_cents = unitPrice(p, v);
+      // Re-derive the photo now that the variant is known, so a variant with
+      // its own shot overrides the general one picked above.
+      base.image_url = imagesForVariant(p, v)[0]?.url ?? null;
       available = v.stock_qty;
     } else {
       if (hasVariants(p)) return { ...base, problem: 'inactive' }; // must pick a variant

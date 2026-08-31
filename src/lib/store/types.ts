@@ -32,6 +32,8 @@ export interface ProductVariant {
 export interface ProductImage {
   id: string;
   product_id: string;
+  /** Which variant this photo shows; null = general photo (any variant without its own falls back to these). */
+  variant_id: string | null;
   url: string;
   alt: string | null;
   sort_order: number;

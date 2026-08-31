@@ -36,7 +36,11 @@ interface VariantRow {
 interface ImageRow {
   url: string;
   alt: string;
+  /** References a VariantRow.key; null = general photo (shown for any variant with no photo of its own). */
+  variant_key: string | null;
 }
+
+const GENERAL_IMAGE = 'general';
 
 interface Issue {
   path: PropertyKey[];
@@ -107,7 +111,13 @@ export function ProductForm({ product }: { product?: Product }) {
     }))
   );
   const [images, setImages] = useState<ImageRow[]>(
-    (product?.images ?? []).map((img) => ({ url: img.url, alt: img.alt ?? '' }))
+    (product?.images ?? []).map((img) => ({
+      url: img.url,
+      alt: img.alt ?? '',
+      // An existing variant's client key is its own id (set below), so this
+      // needs no translation.
+      variant_key: img.variant_id,
+    }))
   );
 
   const [categories, setCategories] = useState<StoreCategory[]>([]);
@@ -136,7 +146,12 @@ export function ProductForm({ product }: { product?: Product }) {
   const updateVariant = (key: string, patch: Partial<VariantRow>) =>
     setVariants((prev) => prev.map((v) => (v.key === key ? { ...v, ...patch } : v)));
 
-  const removeVariant = (key: string) => setVariants((prev) => prev.filter((v) => v.key !== key));
+  const removeVariant = (key: string) => {
+    setVariants((prev) => prev.filter((v) => v.key !== key));
+    // Photos tagged to the removed variant fall back to "applies to all"
+    // rather than referencing a variant that no longer exists.
+    setImages((prev) => prev.map((img) => (img.variant_key === key ? { ...img, variant_key: null } : img)));
+  };
 
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -155,7 +170,7 @@ export function ProductForm({ product }: { product?: Product }) {
         const res = await fetch('/api/upload', { method: 'POST', body: fd });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || 'Upload failed');
-        setImages((prev) => [...prev, { url: data.url, alt: '' }]);
+        setImages((prev) => [...prev, { url: data.url, alt: '', variant_key: null }]);
       }
     } catch (err: any) {
       toast({ title: err.message || 'Upload failed', variant: 'destructive' });
@@ -216,6 +231,7 @@ export function ProductForm({ product }: { product?: Product }) {
       }
       variantBodies.push({
         id: v.id,
+        client_key: v.key,
         option_label: optionLabel.trim() || 'Option',
         name: v.name.trim(),
         sku: v.sku.trim() || null,
@@ -238,7 +254,12 @@ export function ProductForm({ product }: { product?: Product }) {
       is_featured: isFeatured,
       sort_order: product?.sort_order ?? 0,
       variants: variantBodies,
-      images: images.map((img, i) => ({ url: img.url, alt: img.alt.trim() || null, sort_order: i })),
+      images: images.map((img, i) => ({
+        url: img.url,
+        alt: img.alt.trim() || null,
+        sort_order: i,
+        variant_key: img.variant_key,
+      })),
     };
 
     setSaving(true);
@@ -479,7 +500,7 @@ export function ProductForm({ product }: { product?: Product }) {
                     unoptimized
                     className="w-16 h-16 rounded-md object-cover shrink-0"
                   />
-                  <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex-1 min-w-0 space-y-1.5">
                     {i === 0 && <p className="text-xs text-primary font-medium">Main image</p>}
                     <Input
                       value={img.alt}
@@ -490,6 +511,30 @@ export function ProductForm({ product }: { product?: Product }) {
                       }
                       placeholder="Alt text (describe the image)"
                     />
+                    {variants.length > 0 && (
+                      <Select
+                        value={img.variant_key ?? GENERAL_IMAGE}
+                        onValueChange={(value) =>
+                          setImages((prev) =>
+                            prev.map((x, j) =>
+                              j === i ? { ...x, variant_key: value === GENERAL_IMAGE ? null : value } : x
+                            )
+                          )
+                        }
+                      >
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={GENERAL_IMAGE}>Applies to: all variants</SelectItem>
+                          {variants.map((v) => (
+                            <SelectItem key={v.key} value={v.key}>
+                              Only for: {v.name.trim() || 'Unnamed variant'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <Button

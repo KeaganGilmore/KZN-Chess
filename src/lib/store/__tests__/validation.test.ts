@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { imageUrlSchema, productSchema } from '@/lib/store/validation';
+import { imageSchema, imageUrlSchema, productSchema, variantSchema } from '@/lib/store/validation';
 
 describe('imageUrlSchema', () => {
   it('accepts paths produced by /api/upload', () => {
@@ -49,6 +49,42 @@ describe('productSchema with uploaded images', () => {
     expect(res.success).toBe(false);
     if (!res.success) {
       expect(res.error.issues[0].path.join('.')).toBe('images.0.url');
+    }
+  });
+});
+
+describe('variant/image correlation (client_key / variant_key)', () => {
+  it('variantSchema requires a client_key', () => {
+    const withKey = variantSchema.safeParse({ client_key: 'v-123', name: 'Red' });
+    expect(withKey.success).toBe(true);
+    const withoutKey = variantSchema.safeParse({ name: 'Red' });
+    expect(withoutKey.success).toBe(false);
+  });
+
+  it('imageSchema defaults variant_key to null and accepts an explicit one', () => {
+    const noKey = imageSchema.safeParse({ url: 'https://example.com/a.jpg' });
+    expect(noKey.success).toBe(true);
+    if (noKey.success) expect(noKey.data.variant_key).toBeNull();
+
+    const withKey = imageSchema.safeParse({ url: 'https://example.com/a.jpg', variant_key: 'v-123' });
+    expect(withKey.success).toBe(true);
+    if (withKey.success) expect(withKey.data.variant_key).toBe('v-123');
+  });
+
+  it('productSchema accepts a variant and an image referencing its client_key', () => {
+    const res = productSchema.safeParse({
+      name: 'Chess Shirt',
+      price_cents: 20000,
+      variants: [{ client_key: 'v-red', name: 'Red' }, { client_key: 'v-blue', name: 'Blue' }],
+      images: [
+        { url: 'https://example.com/general.jpg' },
+        { url: 'https://example.com/red.jpg', variant_key: 'v-red' },
+      ],
+    });
+    expect(res.success).toBe(true);
+    if (res.success) {
+      expect(res.data.variants.map((v) => v.client_key)).toEqual(['v-red', 'v-blue']);
+      expect(res.data.images.map((i) => i.variant_key)).toEqual([null, 'v-red']);
     }
   });
 });

@@ -128,14 +128,33 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
       await supabase.from('product_variants').delete().in('id', hardDelete);
     }
   }
+  // variantIdByKey resolves each image's variant_key to a real variant id
+  // below. An existing variant's client_key is its own id (see product-form),
+  // so it resolves immediately; a new variant's key resolves once inserted.
+  const variantIdByKey = new Map<string, string>();
   for (const [i, v] of variants.entries()) {
-    const { id, ...fields } = v;
+    const { id, client_key, ...fields } = v;
     const row = { ...fields, product_id: params.id, sort_order: i };
-    const { error: ve } = id
-      ? await supabase.from('product_variants').update(row).eq('id', id).eq('product_id', params.id)
-      : await supabase.from('product_variants').insert(row);
-    if (ve) {
-      return NextResponse.json({ error: ve.message }, { status: 500 });
+    if (id) {
+      const { error: ve } = await supabase
+        .from('product_variants')
+        .update(row)
+        .eq('id', id)
+        .eq('product_id', params.id);
+      if (ve) {
+        return NextResponse.json({ error: ve.message }, { status: 500 });
+      }
+      variantIdByKey.set(client_key, id);
+    } else {
+      const { data: inserted, error: ve } = await supabase
+        .from('product_variants')
+        .insert(row)
+        .select('id')
+        .single();
+      if (ve) {
+        return NextResponse.json({ error: ve.message }, { status: 500 });
+      }
+      variantIdByKey.set(client_key, inserted.id);
     }
   }
 
@@ -143,7 +162,12 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
   await supabase.from('product_images').delete().eq('product_id', params.id);
   if (images.length) {
     const { error: ie } = await supabase.from('product_images').insert(
-      images.map((img, i) => ({ ...img, product_id: params.id, sort_order: i }))
+      images.map(({ variant_key, ...img }, i) => ({
+        ...img,
+        product_id: params.id,
+        sort_order: i,
+        variant_id: variant_key ? (variantIdByKey.get(variant_key) ?? null) : null,
+      }))
     );
     if (ie) {
       return NextResponse.json({ error: ie.message }, { status: 500 });

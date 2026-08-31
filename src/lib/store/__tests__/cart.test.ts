@@ -13,7 +13,7 @@ const board: Product = {
   id: 'p1', name: 'Tournament Board', slug: 'tournament-board', description: null, category_id: null,
   price_cents: 25000, compare_at_cents: null, stock_qty: 3, is_active: true, is_featured: false,
   sort_order: 0, created_at: '', updated_at: '', variants: [],
-  images: [{ id: 'i1', product_id: 'p1', url: 'https://x/board.jpg', alt: null, sort_order: 0 }],
+  images: [{ id: 'i1', product_id: 'p1', variant_id: null, url: 'https://x/board.jpg', alt: null, sort_order: 0 }],
 };
 
 const shirt: Product = {
@@ -83,5 +83,30 @@ describe('priceCart', () => {
   it('requires a variant when the product has variants', () => {
     const c = priceCart([{ product_id: 'p2', variant_id: null, quantity: 1 }], [shirt], settings, 'collection');
     expect(c.lines[0].problem).toBe('inactive');
+  });
+
+  it('shows the selected variant\'s own photo on the cart line when it has one', () => {
+    const shirtWithPhotos = {
+      ...shirt,
+      images: [
+        { id: 'gen', product_id: 'p2', variant_id: null, url: 'https://x/shirt.jpg', alt: null, sort_order: 0 },
+        { id: 'xxl', product_id: 'p2', variant_id: 'v2', url: 'https://x/shirt-xxl.jpg', alt: null, sort_order: 0 },
+      ],
+    };
+    const c = priceCart([{ product_id: 'p2', variant_id: 'v2', quantity: 1 }], [shirtWithPhotos], settings, 'collection');
+    expect(c.lines[0].image_url).toBe('https://x/shirt-xxl.jpg');
+  });
+
+  it('falls back to the general photo when the selected variant has none of its own', () => {
+    const shirtWithPhotos = {
+      ...shirt,
+      images: [
+        { id: 'gen', product_id: 'p2', variant_id: null, url: 'https://x/shirt.jpg', alt: null, sort_order: 0 },
+        { id: 'xxl', product_id: 'p2', variant_id: 'v2', url: 'https://x/shirt-xxl.jpg', alt: null, sort_order: 0 },
+      ],
+    };
+    // v1 ('M') has no dedicated photo — should show the general one, not XXL's.
+    const c = priceCart([{ product_id: 'p2', variant_id: 'v1', quantity: 1 }], [shirtWithPhotos], settings, 'collection');
+    expect(c.lines[0].image_url).toBe('https://x/shirt.jpg');
   });
 });
