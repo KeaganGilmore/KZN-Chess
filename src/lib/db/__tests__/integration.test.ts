@@ -11,7 +11,9 @@ const url = process.env.INTEGRATION_DB_URL;
 const d = url ? describe : describe.skip;
 
 d('direct client against live database', () => {
-  const client = () => {
+  // Rows are untyped here on purpose: these tests assert runtime shape.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const client = (): any => {
     // The pool reads DATABASE_URL lazily on first query.
     process.env.DATABASE_URL = url;
     return createDirectClient();

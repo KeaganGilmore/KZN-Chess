@@ -1,19 +1,26 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { createDirectClient } from '@/lib/db';
+import { getDbMode } from '@/lib/db/mode';
 
 /**
  * Server-side database client (never import in client components).
  *
- * DB_DIRECT=true (production on Railway): queries run as SQL over a pg pool
- * against DATABASE_URL on the private network — no Supabase, no PostgREST
- * service. src/lib/db implements the query-builder surface this codebase
- * uses, so call sites are identical in both modes; the cast below keeps the
- * original compile-time types at every call site.
+ * Direct mode (production on Railway): queries run as SQL over a pg pool
+ * against DATABASE_URL on the private network — no Supabase, no API layer.
+ * src/lib/db implements the query-builder surface this codebase uses, so
+ * call sites are identical in both modes; the cast keeps their types.
  *
- * Otherwise: the original hosted-Supabase client (legacy / local dev).
+ * Supabase mode: the original hosted client (legacy / local dev).
  */
+let logged = false;
+
 export function createServerClient(): SupabaseClient {
-  if (process.env.DB_DIRECT === 'true') {
+  const mode = getDbMode();
+  if (!logged) {
+    logged = true;
+    console.log(`[db] mode=${mode}`);
+  }
+  if (mode === 'direct') {
     return createDirectClient() as unknown as SupabaseClient;
   }
   return createClient(

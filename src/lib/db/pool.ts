@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { envStr } from '@/lib/env';
 
 /**
  * Process-wide connection pool. Next.js on Railway runs as one long-lived
@@ -12,7 +13,7 @@ declare global {
 
 export function getPool(): Pool {
   if (!global.__kznPgPool) {
-    const url = process.env.DATABASE_URL;
+    const url = envStr('DATABASE_URL');
     if (!url) throw new Error('DATABASE_URL is not set');
     global.__kznPgPool = new Pool({
       connectionString: url,

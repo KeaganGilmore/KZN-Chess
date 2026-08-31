@@ -1,3 +1,5 @@
+import { envStr } from '@/lib/env';
+
 /**
  * Where uploaded images live.
  *
@@ -6,6 +8,5 @@
  * - unset → the upload route falls back to Supabase Storage (legacy).
  */
 export function getUploadDir(): string | null {
-  const dir = process.env.UPLOAD_DIR?.trim();
-  return dir ? dir : null;
+  return envStr('UPLOAD_DIR');
 }
