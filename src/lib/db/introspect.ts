@@ -34,13 +34,19 @@ export function getDbShape(): Promise<DbShape> {
 
 async function loadShape(): Promise<DbShape> {
   const pool = getPool();
+  // att.attname is Postgres's internal `name` type, not `text`. Scalar `name`
+  // values parse to plain JS strings fine, but pg's default type-parser
+  // registry has no entry for `name[]` (array_agg(name) -> oid 1003), so an
+  // aggregated result silently comes back as the raw "{a,b}" literal string
+  // instead of a JS array — cast to text everywhere so array_agg produces a
+  // properly-parsed `text[]` (oid 1009).
   const fkRes = await pool.query(`
     SELECT
-      con.conname                   AS name,
-      con.conrelid::regclass::text  AS table,
-      att.attname                   AS column,
-      con.confrelid::regclass::text AS ref_table,
-      refatt.attname                AS ref_column
+      con.conname                        AS name,
+      con.conrelid::regclass::text       AS table,
+      att.attname::text                  AS column,
+      con.confrelid::regclass::text      AS ref_table,
+      refatt.attname::text               AS ref_column
     FROM pg_constraint con
     JOIN pg_attribute att
       ON att.attrelid = con.conrelid AND att.attnum = con.conkey[1]
@@ -52,7 +58,7 @@ async function loadShape(): Promise<DbShape> {
   `);
   const pkRes = await pool.query(`
     SELECT con.conrelid::regclass::text AS table,
-           array_agg(att.attname ORDER BY ord.n) AS columns
+           array_agg(att.attname::text ORDER BY ord.n) AS columns
     FROM pg_constraint con
     CROSS JOIN LATERAL unnest(con.conkey) WITH ORDINALITY AS ord(attnum, n)
     JOIN pg_attribute att ON att.attrelid = con.conrelid AND att.attnum = ord.attnum

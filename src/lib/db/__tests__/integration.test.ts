@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createDirectClient } from '@/lib/db';
+import { getDbShape } from '@/lib/db/introspect';
 
 /**
  * Live integration tests for the direct-SQL client against a real database.
@@ -23,6 +24,34 @@ d('direct client against live database', () => {
     const { data, error } = await client().from('store_settings').select('*').eq('id', 1).maybeSingle();
     expect(error).toBeNull();
     expect(data?.store_name).toBeTruthy();
+  });
+
+  it('introspects primary keys as real JS arrays, not Postgres array-literal strings', async () => {
+    // Regression: pg_attribute.attname is Postgres's internal `name` type;
+    // array_agg(name) has no default pg type-parser and silently comes back
+    // as the raw "{id}" string unless cast to text — see introspect.ts. That
+    // broke every upsert() (e.g. saving store settings) with "target.map is
+    // not a function" because the "string with a .length" looked truthy.
+    process.env.DATABASE_URL = url;
+    const shape = await getDbShape();
+    const settingsPk = shape.primaryKeys.get('store_settings');
+    const productsPk = shape.primaryKeys.get('products');
+    expect(Array.isArray(settingsPk)).toBe(true);
+    expect(settingsPk).toEqual(['id']);
+    expect(Array.isArray(productsPk)).toBe(true);
+    expect(productsPk).toEqual(['id']);
+  });
+
+  it('upserts store_settings end to end (round-trips the current value, no net change)', async () => {
+    const before = await client().from('store_settings').select('payment_enabled').eq('id', 1).single();
+    expect(before.error).toBeNull();
+    const { data, error } = await client()
+      .from('store_settings')
+      .upsert({ id: 1, payment_enabled: before.data.payment_enabled })
+      .select()
+      .single();
+    expect(error).toBeNull();
+    expect(data?.payment_enabled).toBe(before.data.payment_enabled);
   });
 
   it('counts players with head:true', async () => {
