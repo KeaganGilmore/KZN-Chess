@@ -23,14 +23,34 @@ project still works.
 
 ## App service environment
 
-| Variable | Value |
-|---|---|
-| `DB_DIRECT` | `true` |
-| `DATABASE_URL` | the Postgres service's private URL (`postgresql://postgres:…@postgres.railway.internal:5432/railway`) |
-| `UPLOAD_DIR` | `/data/uploads` |
+**Required — the app is broken without these:**
 
-`NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` /
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` are unused in direct mode.
+| Variable | Value | Symptom if missing |
+|---|---|---|
+| `DB_DIRECT` | `true` | Falls back to Supabase → every query fails |
+| `DATABASE_URL` | the Postgres service's private URL (`${{Postgres.DATABASE_URL}}`) | No database at all |
+| `NEXTAUTH_SECRET` | 32+ random bytes (`openssl rand -base64 32`) | **`/auth` and all `/api/auth/*` return 500** ("problem with the server configuration"); nobody can sign in |
+| `NEXTAUTH_URL` | `https://www.kznchess.co.za` | Sign-in redirects land on the wrong host |
+| `UPLOAD_DIR` | `/data/uploads` | Uploads try dead Supabase Storage |
+
+**Optional — features degrade quietly:**
+
+| Variable | Effect if missing |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Share/OG links use the `https://kznchess.co.za` default (non-www) |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Falls back to `info@kznchess.co.za` |
+| `NEXT_PUBLIC_ADSENSE_PUB_ID`, `NEXT_PUBLIC_ADSENSE_SLOT_*` | Ad slots render nothing |
+| `NODE_VERSION` | Build uses Node 18 (deprecation warnings); set `20` |
+
+`NEXT_PUBLIC_*` values are inlined at build time, so changing one needs a
+rebuild, not just a restart. `NEXT_PUBLIC_SUPABASE_URL` /
+`SUPABASE_SERVICE_ROLE_KEY` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are unused in
+direct mode and can be deleted — but delete them **individually**, not by
+clearing the variable list, or `NEXTAUTH_SECRET` goes with them.
+
+Changing `NEXTAUTH_SECRET` invalidates existing sessions (everyone is signed
+out once). Stored passwords are bcrypt hashes in the database and are
+unaffected.
 
 ## One-time bootstrap / restore
 

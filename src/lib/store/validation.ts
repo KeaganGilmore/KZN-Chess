@@ -41,8 +41,25 @@ export const variantSchema = z.object({
   sort_order: z.number().int().default(0),
 });
 
+/**
+ * Uploaded images are served by this app as `/api/media/<folder>/<file>`
+ * (a Railway volume), so image URLs are app-relative. Absolute https URLs
+ * stay valid for images hosted elsewhere.
+ */
+const MEDIA_PATH = /^\/api\/media\/[a-zA-Z0-9][a-zA-Z0-9._-]*\/[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
+
+export const imageUrlSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(500)
+  .refine(
+    (u) => MEDIA_PATH.test(u) || /^https:\/\/[^\s]+$/.test(u),
+    'Must be an uploaded image or an https:// URL'
+  );
+
 export const imageSchema = z.object({
-  url: z.string().url().max(500),
+  url: imageUrlSchema,
   alt: z.string().trim().max(160).optional().nullable(),
   sort_order: z.number().int().default(0),
 });
