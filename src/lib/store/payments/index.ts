@@ -1,11 +1,17 @@
 import type { StoreSettings } from '../types';
 import type { PaymentProvider } from './types';
 import { manualEft } from './manual-eft';
+import { contactOnly } from './contact';
 
 export type { PaymentInit, PaymentProvider, WebhookResult } from './types';
 
-/** Registry. Add PayFast/Yoco here later; checkout and order pages need no changes. */
-const PROVIDERS: PaymentProvider[] = [manualEft];
+/**
+ * Registry. Add PayFast/Yoco here later; checkout and order pages need no
+ * changes. manualEft and contactOnly are each other's mirror image on
+ * settings.payment_enabled, so exactly one of them is ever available at a
+ * time — see their isAvailable().
+ */
+const PROVIDERS: PaymentProvider[] = [manualEft, contactOnly];
 
 export function getPaymentProvider(id: string): PaymentProvider | null {
   return PROVIDERS.find((p) => p.id === id) ?? null;

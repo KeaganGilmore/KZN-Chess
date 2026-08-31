@@ -22,6 +22,7 @@ interface FormState {
   store_name: string;
   tagline: string;
   store_enabled: boolean;
+  payment_enabled: boolean;
   delivery_enabled: boolean;
   delivery_fee: string;
   free_delivery_threshold: string;
@@ -35,6 +36,7 @@ function toForm(s: StoreSettings): FormState {
     store_name: s.store_name,
     tagline: s.tagline ?? '',
     store_enabled: s.store_enabled,
+    payment_enabled: s.payment_enabled,
     delivery_enabled: s.delivery_enabled,
     delivery_fee: (s.delivery_fee_cents / 100).toFixed(2),
     free_delivery_threshold:
@@ -109,6 +111,7 @@ export function SettingsForm() {
           store_name,
           tagline: form.tagline.trim() || null,
           store_enabled: form.store_enabled,
+          payment_enabled: form.payment_enabled,
           delivery_enabled: form.delivery_enabled,
           delivery_fee_cents,
           free_delivery_threshold_cents,
@@ -198,6 +201,21 @@ export function SettingsForm() {
               />
             </div>
 
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-4 py-3">
+              <div>
+                <Label htmlFor="s-payment">Accept online payment</Label>
+                <p className="text-xs text-muted-foreground">
+                  When off, checkout still places the order (stock is reserved as normal) but tells
+                  the customer you&apos;ll contact them to arrange payment, instead of showing EFT details.
+                </p>
+              </div>
+              <Switch
+                id="s-payment"
+                checked={form.payment_enabled}
+                onCheckedChange={(checked) => update({ payment_enabled: checked })}
+              />
+            </div>
+
             <div className="space-y-4 rounded-lg border border-border px-4 py-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -250,20 +268,22 @@ export function SettingsForm() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="s-bank">Bank details for EFT</Label>
-              <Textarea
-                id="s-bank"
-                value={form.bank_details}
-                onChange={(e) => update({ bank_details: e.target.value })}
-                rows={5}
-                placeholder={BANK_PLACEHOLDER}
-                maxLength={1000}
-              />
-              <p className="text-xs text-muted-foreground">
-                Shown to customers after checkout. They use their order number as the payment reference.
-              </p>
-            </div>
+            {form.payment_enabled && (
+              <div className="space-y-2">
+                <Label htmlFor="s-bank">Bank details for EFT</Label>
+                <Textarea
+                  id="s-bank"
+                  value={form.bank_details}
+                  onChange={(e) => update({ bank_details: e.target.value })}
+                  rows={5}
+                  placeholder={BANK_PLACEHOLDER}
+                  maxLength={1000}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Shown to customers after checkout. They use their order number as the payment reference.
+                </p>
+              </div>
+            )}
 
             <div className="space-y-2 max-w-sm">
               <Label htmlFor="s-whatsapp">WhatsApp number</Label>

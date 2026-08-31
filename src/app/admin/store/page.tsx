@@ -74,7 +74,13 @@ export default async function AdminStorePage() {
       cta: 'Open store',
     });
   }
-  if (!settings.bank_details) {
+  if (!settings.payment_enabled) {
+    warnings.push({
+      text: 'Online payment is off — customers place orders and you contact them to arrange payment.',
+      href: '/admin/store/settings',
+      cta: 'Review',
+    });
+  } else if (!settings.bank_details) {
     warnings.push({
       text: 'Add bank details so EFT customers know where to pay.',
       href: '/admin/store/settings',

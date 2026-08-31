@@ -72,6 +72,8 @@ export interface CollectionPoint {
 export interface StoreSettings {
   id: 1;
   store_enabled: boolean;
+  /** Whether checkout offers real payment (EFT etc). Off = checkout still places a real order, but the customer is told KZN Chess will contact them to arrange payment instead of seeing payment instructions. */
+  payment_enabled: boolean;
   delivery_enabled: boolean;
   collection_enabled: boolean;
   delivery_fee_cents: number;

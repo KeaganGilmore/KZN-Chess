@@ -3,7 +3,7 @@ import { priceCart, MAX_QTY_PER_LINE } from '@/lib/store/cart';
 import type { Product, StoreSettings } from '@/lib/store/types';
 
 const settings: StoreSettings = {
-  id: 1, store_enabled: true, delivery_enabled: true, collection_enabled: true,
+  id: 1, store_enabled: true, payment_enabled: true, delivery_enabled: true, collection_enabled: true,
   delivery_fee_cents: 9900, free_delivery_threshold_cents: 100000,
   bank_details: null, whatsapp_number: null, store_name: 'KZN Chess Store', tagline: null,
   updated_at: '',

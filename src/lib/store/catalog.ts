@@ -8,6 +8,7 @@ export const PRODUCT_COLS =
 export const DEFAULT_SETTINGS: StoreSettings = {
   id: 1,
   store_enabled: false,
+  payment_enabled: true,
   delivery_enabled: true,
   collection_enabled: true,
   delivery_fee_cents: 0,

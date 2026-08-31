@@ -151,6 +151,7 @@ export const collectionPointPatchSchema = z.object({
 
 export const settingsSchema = z.object({
   store_enabled: z.boolean().optional(),
+  payment_enabled: z.boolean().optional(),
   delivery_enabled: z.boolean().optional(),
   collection_enabled: z.boolean().optional(),
   delivery_fee_cents: z.number().int().min(0).max(1_000_000).optional(),
