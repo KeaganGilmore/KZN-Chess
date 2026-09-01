@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Product } from '@/lib/store/types';
 import { formatZar } from '@/lib/store/money';
-import { fromPrice, hasVariants, inStock, primaryImage } from '@/lib/store/product-helpers';
+import { fromPrice, hasVariants, inStock, primaryImage, primaryImageAlt } from '@/lib/store/product-helpers';
 import { cn } from '@/lib/utils';
 
 export function ProductCard({ product }: { product: Product }) {
@@ -21,7 +21,7 @@ export function ProductCard({ product }: { product: Product }) {
           {image ? (
             <Image
               src={image}
-              alt={product.name}
+              alt={primaryImageAlt(product)}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className={cn(

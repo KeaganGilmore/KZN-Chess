@@ -9,6 +9,7 @@ export const revalidate = 60;
 export const metadata = {
   title: 'Tournaments - KZN Chess',
   description: 'Browse all chess tournaments across KwaZulu-Natal.',
+  alternates: { canonical: '/tournaments' },
 };
 
 async function getData() {

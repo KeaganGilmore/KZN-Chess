@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 export const metadata = {
   title: 'My Tournaments - KZN Chess',
   description: 'Tournaments you organize or arbitrate.',
+  robots: { index: false, follow: false },
 };
 
 const statusStyles: Record<string, string> = {

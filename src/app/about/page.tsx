@@ -10,6 +10,7 @@ import type { District, SiteContent } from '@/lib/types';
 export const metadata = {
   title: 'About - KZN Chess',
   description: 'Learn about KZN Chess and the districts of KwaZulu-Natal.',
+  alternates: { canonical: '/about' },
 };
 
 export const revalidate = 300;

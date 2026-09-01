@@ -48,6 +48,12 @@ export function primaryImage(p: Product): string | null {
   return imgs[0]?.url ?? null;
 }
 
+/** Alt text for the primary image — the admin-set text if there is one, else the product name. */
+export function primaryImageAlt(p: Product): string {
+  const imgs = [...(p.images || [])].sort((a, b) => a.sort_order - b.sort_order);
+  return imgs[0]?.alt || p.name;
+}
+
 /**
  * Photos to show for the given variant selection (sorted): the variant's own
  * photos if it has any, otherwise the product's general (untagged) photos,

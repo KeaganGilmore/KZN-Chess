@@ -8,6 +8,7 @@ export const revalidate = 300;
 export const metadata = {
   title: 'Gallery - KZN Chess',
   description: 'Photo gallery of past chess tournaments across KwaZulu-Natal.',
+  alternates: { canonical: '/gallery' },
 };
 
 async function getData() {

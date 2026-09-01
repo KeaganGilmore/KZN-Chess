@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return {
     title: `${tournament.name} - KZN Chess`,
     description: `${tournament.name} at ${tournament.venue} on ${tournament.date}`,
+    alternates: { canonical: `/tournaments/${tournament.id}` },
   };
 }
 

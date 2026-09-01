@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 export const metadata = {
   title: 'Store - KZN Chess',
   description: 'Chess sets, boards, clocks, books and KZN Chess merchandise.',
+  alternates: { canonical: '/store' },
 };
 export const dynamic = 'force-dynamic';
 
@@ -126,6 +127,9 @@ export default async function StorePage({
           </div>
         )}
 
+        <h2 className="sr-only">
+          {activeCategory ? activeCategory.name : 'All products'}
+        </h2>
         <ProductGrid
           products={products}
           emptyMessage={

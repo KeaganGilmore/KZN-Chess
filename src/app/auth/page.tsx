@@ -7,6 +7,7 @@ import { AuroraBackground } from '@/components/ui/aurora-background';
 export const metadata = {
   title: 'Account - KZN Chess',
   description: 'Sign in to your KZN Chess account.',
+  robots: { index: false, follow: false },
 };
 
 export default async function AuthPage() {
