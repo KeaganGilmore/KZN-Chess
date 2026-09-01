@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import {
+  AlertTriangle,
   ArrowLeft,
   ImageIcon,
   Loader2,
@@ -432,6 +433,16 @@ export function OrderDetail({ order: initial }: { order: OrderWithItems }) {
           </Card>
         </div>
       </div>
+
+      {order.payment_provider === 'contact' && order.payment_status !== 'paid' && (
+        <div className="flex items-start gap-3 rounded-lg border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-sm">
+          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-orange-300" />
+          <p className="text-orange-300">
+            No online payment was taken for this order — contact {order.customer_name} to arrange
+            payment and confirm the order details, then mark it paid once that&apos;s settled.
+          </p>
+        </div>
+      )}
 
       <ConfirmDialog
         open={confirming !== null}

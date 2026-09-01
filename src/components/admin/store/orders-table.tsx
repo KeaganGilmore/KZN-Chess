@@ -162,6 +162,7 @@ export function OrdersTable({ initialStatus }: { initialStatus?: string }) {
                   </TableCell>
                   <TableCell>
                     <p className="text-sm font-medium">{o.customer_name}</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[180px]">{o.customer_email}</p>
                     <p className="text-xs text-muted-foreground">{o.customer_phone}</p>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
