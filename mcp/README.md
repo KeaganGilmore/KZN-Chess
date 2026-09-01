@@ -25,7 +25,7 @@ actions.
    NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
    SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
    # Optional: attribute audit logs to a real admin account
-   MCP_ADMIN_EMAIL=admin@kznchess.co.za
+   MCP_ADMIN_EMAIL=keagangilmore@gmail.com
    ```
 
 2. The server is registered in `.mcp.json`, so any Claude Code session

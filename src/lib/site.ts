@@ -9,4 +9,4 @@ export const SITE_URL = (
 
 /** Public contact email, overridable per-environment. */
 export const CONTACT_EMAIL =
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@kznchess.co.za';
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'keagangilmore@gmail.com';

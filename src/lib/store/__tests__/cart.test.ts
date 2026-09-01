@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { priceCart, MAX_QTY_PER_LINE } from '@/lib/store/cart';
+import { priceCart } from '@/lib/store/cart';
 import type { Product, StoreSettings } from '@/lib/store/types';
 
 const settings: StoreSettings = {
@@ -64,15 +64,19 @@ describe('priceCart', () => {
     expect(c.delivery_fee_cents).toBe(0);
   });
 
-  it('merges duplicate lines and caps quantity', () => {
+  it('merges duplicate lines', () => {
     const c = priceCart(
       [{ product_id: 'p1', variant_id: null, quantity: 1 }, { product_id: 'p1', variant_id: null, quantity: 1 }],
       [{ ...board, stock_qty: 100 }], settings, 'collection'
     );
     expect(c.lines).toHaveLength(1);
     expect(c.lines[0].quantity).toBe(2);
+  });
+
+  it('allows a large quantity, bounded only by stock rather than an artificial cap', () => {
     const big = priceCart([{ product_id: 'p1', variant_id: null, quantity: 999 }], [{ ...board, stock_qty: 1000 }], settings, 'collection');
-    expect(big.lines[0].quantity).toBe(MAX_QTY_PER_LINE);
+    expect(big.lines[0].quantity).toBe(999);
+    expect(big.lines[0].problem).toBeNull();
   });
 
   it('ignores a variant id that does not belong to the product', () => {

@@ -13,16 +13,16 @@ export const contactOnly: PaymentProvider = {
   label: "We'll contact you",
   description: "We'll reach out by email or phone to arrange payment and confirm your order.",
   isAvailable: (settings) => !settings.payment_enabled,
-  async createPayment(order) {
+  async createPayment(order, settings) {
     const lines = [
-      `We've received your order and will be in touch at ${order.customer_email} or ${order.customer_phone} to arrange payment.`,
+      `Thank you for ordering with ${settings.store_name} — we really appreciate it. We'll be in touch at ${order.customer_email} or ${order.customer_phone} shortly to arrange payment and confirm the details of your order.`,
     ];
     if (order.fulfilment === 'collection') {
-      lines.push("We'll confirm the details before your order is ready to collect.");
+      lines.push("We'll have everything sorted before it's ready for you to collect.");
     }
     return {
       kind: 'instructions',
-      title: "We'll be in touch",
+      title: 'Thank you for your order!',
       lines,
     };
   },

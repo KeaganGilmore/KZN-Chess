@@ -56,7 +56,7 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
 // Identity used for audit_logs rows written by this server
-const AGENT_EMAIL = process.env.MCP_ADMIN_EMAIL || 'mcp-agent@kznchess.co.za';
+const AGENT_EMAIL = process.env.MCP_ADMIN_EMAIL || 'keagangilmore@gmail.com';
 let agentUserIdPromise;
 function getAgentUserId() {
   agentUserIdPromise ??= supabase

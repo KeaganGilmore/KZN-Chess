@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const cartItemSchema = z.object({
   product_id: z.string().uuid(),
   variant_id: z.string().uuid().nullable().default(null),
-  quantity: z.number().int().min(1).max(99),
+  quantity: z.number().int().min(1).max(1_000_000),
 });
 
 export const deliveryAddressSchema = z.object({

@@ -3,16 +3,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, ArrowRight, Loader2, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Loader2, ShoppingBag, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatZar } from '@/lib/store/money';
-import { MAX_QTY_PER_LINE } from '@/lib/store/cart';
 import type { PricedLine } from '@/lib/store/types';
 import { cn } from '@/lib/utils';
 import { useCart } from './cart-provider';
 import { usePricedCart } from './use-priced-cart';
+import { QuantityStepper } from './quantity-stepper';
 
 function LineWarning({
   line,
@@ -159,7 +159,7 @@ export function CartPage() {
             {lines.map((l) => {
               const qty = localQty(l.product_id, l.variant_id);
               // A sold-out or unavailable line can only be removed, never increased.
-              const max = Math.max(1, Math.min(MAX_QTY_PER_LINE, l.available));
+              const max = Math.max(1, l.available);
               const disabled = l.problem === 'inactive' || l.problem === 'out_of_stock';
               const name = l.product_slug ? (
                 <Link
@@ -221,31 +221,12 @@ export function CartPage() {
                         />
 
                         <div className="mt-auto pt-3 flex items-center justify-between gap-3">
-                          <div className="inline-flex items-center border border-border rounded-md">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-11 w-11"
-                              aria-label="Decrease quantity"
-                              disabled={disabled || qty <= 1}
-                              onClick={() => setQuantity(l.product_id, l.variant_id, qty - 1)}
-                            >
-                              <Minus className="w-4 h-4" />
-                            </Button>
-                            <span className="w-8 text-center text-sm tabular-nums">{qty}</span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="h-11 w-11"
-                              aria-label="Increase quantity"
-                              disabled={disabled || qty >= max}
-                              onClick={() => setQuantity(l.product_id, l.variant_id, qty + 1)}
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          <QuantityStepper
+                            value={qty}
+                            onChange={(n) => setQuantity(l.product_id, l.variant_id, n)}
+                            max={max}
+                            disabled={disabled}
+                          />
                           <Button
                             type="button"
                             variant="ghost"

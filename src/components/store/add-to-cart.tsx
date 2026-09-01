@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Check, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Check, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from './cart-provider';
+import { QuantityStepper } from './quantity-stepper';
 import type { Product } from '@/lib/store/types';
 import {
   activeVariants,
@@ -14,7 +15,6 @@ import {
   unitPrice,
 } from '@/lib/store/product-helpers';
 import { formatZar } from '@/lib/store/money';
-import { MAX_QTY_PER_LINE } from '@/lib/store/cart';
 import { cn } from '@/lib/utils';
 
 /**
@@ -47,7 +47,7 @@ export function AddToCart({
   const inCart =
     items.find((l) => l.product_id === product.id && (l.variant_id ?? null) === variantId)
       ?.quantity ?? 0;
-  const maxAdd = Math.max(0, Math.min(MAX_QTY_PER_LINE - inCart, stock - inCart));
+  const maxAdd = Math.max(0, stock - inCart);
   // The stepper can never show more than can actually be added.
   const shownQty = Math.max(1, Math.min(qty, Math.max(1, maxAdd)));
   const price = useMemo(() => unitPrice(product, variant), [product, variant]);
@@ -141,33 +141,7 @@ export function AddToCart({
       </p>
 
       <div className="flex items-center gap-3">
-        <div className="inline-flex items-center border border-border rounded-md">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-11 w-11"
-            aria-label="Decrease quantity"
-            disabled={shownQty <= 1}
-            onClick={() => setQty(Math.max(1, shownQty - 1))}
-          >
-            <Minus className="w-4 h-4" />
-          </Button>
-          <span className="w-8 text-center tabular-nums" aria-live="polite">
-            {shownQty}
-          </span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-11 w-11"
-            aria-label="Increase quantity"
-            disabled={shownQty >= maxAdd}
-            onClick={() => setQty(Math.min(Math.max(1, maxAdd), shownQty + 1))}
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
+        <QuantityStepper value={shownQty} onChange={setQty} max={maxAdd} disabled={maxAdd <= 0} />
         <Button
           size="lg"
           className="flex-1 min-h-[44px]"

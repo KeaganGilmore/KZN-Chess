@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { CartItem } from '@/lib/store/types';
-import { MAX_QTY_PER_LINE, isValidCartItem, normalizeCart } from '@/lib/store/cart';
+import { isValidCartItem, normalizeCart } from '@/lib/store/cart';
 
 const STORAGE_KEY = 'kznchess.cart.v1';
 
@@ -53,7 +53,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         normalizeCart(
           prev.map((l) =>
             l.product_id === productId && (l.variant_id ?? null) === (variantId ?? null)
-              ? { ...l, quantity: Math.min(MAX_QTY_PER_LINE, quantity) }
+              ? { ...l, quantity: Math.max(1, Math.floor(quantity)) }
               : l
           )
         )

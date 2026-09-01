@@ -38,7 +38,7 @@ project still works.
 | Variable | Effect if missing |
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | Share/OG links use the `https://kznchess.co.za` default (non-www) |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Falls back to `info@kznchess.co.za` |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Falls back to `keagangilmore@gmail.com` |
 | `NEXT_PUBLIC_ADSENSE_PUB_ID`, `NEXT_PUBLIC_ADSENSE_SLOT_*` | Ad slots render nothing |
 | `NODE_VERSION` | Build uses Node 18 (deprecation warnings); set `20` |
 

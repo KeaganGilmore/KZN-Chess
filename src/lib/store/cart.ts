@@ -1,8 +1,6 @@
 import type { CartItem, Fulfilment, PricedCart, PricedLine, Product, StoreSettings } from './types';
 import { activeVariants, hasVariants, imagesForVariant, unitPrice } from './product-helpers';
 
-export const MAX_QTY_PER_LINE = 20;
-
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
@@ -18,7 +16,7 @@ export function isValidCartItem(it: unknown): it is CartItem {
   return true;
 }
 
-/** Merge duplicate (product, variant) lines and clamp quantities to [1, MAX]. */
+/** Merge duplicate (product, variant) lines, summing their quantities. */
 export function normalizeCart(items: CartItem[]): CartItem[] {
   const map = new Map<string, CartItem>();
   for (const it of items) {
@@ -26,7 +24,7 @@ export function normalizeCart(items: CartItem[]): CartItem[] {
     const key = `${it.product_id}:${it.variant_id ?? ''}`;
     const qty = Math.max(0, Math.floor(Number(it.quantity) || 0));
     const existing = map.get(key);
-    const total = Math.min(MAX_QTY_PER_LINE, (existing?.quantity ?? 0) + qty);
+    const total = (existing?.quantity ?? 0) + qty;
     map.set(key, { product_id: it.product_id, variant_id: it.variant_id ?? null, quantity: total });
   }
   return [...map.values()].filter((l) => l.quantity > 0);
