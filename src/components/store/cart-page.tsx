@@ -62,7 +62,7 @@ function LineWarning({
 export function CartPage() {
   const router = useRouter();
   const { items, hydrated, setQuantity, remove, clear } = useCart();
-  const { cart, loading, error, refresh } = usePricedCart(items, 'collection', hydrated);
+  const { cart, settings, loading, error, refresh } = usePricedCart(items, 'collection', hydrated);
 
   if (!hydrated) {
     return (
@@ -263,7 +263,10 @@ export function CartPage() {
             </div>
           </dl>
           <p className="text-xs text-muted-foreground">
-            Delivery fee is calculated at checkout. Collection is free.
+            {settings && settings.delivery_fee_cents > 0
+              ? `Delivery from ${formatZar(settings.delivery_fee_cents)}, finalised in your quote when we reach out.`
+              : 'Delivery cost is finalised in your quote when we reach out.'}{' '}
+            Collection is free.
           </p>
           {problems > 0 && (
             <p className="text-xs text-orange-400">

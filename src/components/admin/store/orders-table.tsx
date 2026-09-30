@@ -137,7 +137,7 @@ export function OrdersTable({ initialStatus }: { initialStatus?: string }) {
                 <TableHead>Order</TableHead>
                 <TableHead className="hidden md:table-cell">Date</TableHead>
                 <TableHead>Customer</TableHead>
-                <TableHead className="hidden lg:table-cell">Fulfilment</TableHead>
+                <TableHead className="hidden md:table-cell">Delivery / collection</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden sm:table-cell">Payment</TableHead>
@@ -165,10 +165,29 @@ export function OrdersTable({ initialStatus }: { initialStatus?: string }) {
                     <p className="text-xs text-muted-foreground truncate max-w-[180px]">{o.customer_email}</p>
                     <p className="text-xs text-muted-foreground">{o.customer_phone}</p>
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
-                    {o.fulfilment === 'delivery'
-                      ? 'Delivery'
-                      : `Collect: ${o.collection_point_name || 'collection point'}`}
+                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground max-w-[220px]">
+                    {o.fulfilment === 'delivery' ? (
+                      <>
+                        <p className="font-medium text-foreground">Delivery</p>
+                        {o.delivery_address ? (
+                          <p className="text-xs leading-snug">
+                            {[
+                              o.delivery_address.line1,
+                              o.delivery_address.line2,
+                              o.delivery_address.suburb,
+                              [o.delivery_address.city, o.delivery_address.postal_code].filter(Boolean).join(' '),
+                              o.delivery_address.province,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')}
+                          </p>
+                        ) : (
+                          <p className="text-xs">No address on record</p>
+                        )}
+                      </>
+                    ) : (
+                      `Collect: ${o.collection_point_name || 'collection point'}`
+                    )}
                   </TableCell>
                   <TableCell className="text-sm font-medium whitespace-nowrap">
                     {formatZar(o.total_cents)}

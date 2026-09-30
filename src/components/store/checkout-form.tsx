@@ -287,11 +287,6 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
     );
   }
 
-  const freeDeliveryNote =
-    settings.free_delivery_threshold_cents != null
-      ? `Free on orders over ${formatZar(settings.free_delivery_threshold_cents)}`
-      : null;
-
   return (
     <form onSubmit={submit} noValidate className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
       <div className="space-y-6">
@@ -379,10 +374,9 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
                   <span>
                     <span className="block font-medium">Delivery</span>
                     <span className="block text-xs text-muted-foreground">
-                      {settings.delivery_fee_cents === 0
-                        ? 'Free courier delivery'
-                        : `${formatZar(settings.delivery_fee_cents)} courier fee`}
-                      {freeDeliveryNote && settings.delivery_fee_cents > 0 ? ` · ${freeDeliveryNote}` : ''}
+                      {settings.delivery_fee_cents > 0
+                        ? `From ${formatZar(settings.delivery_fee_cents)} · finalised in your quote when we reach out`
+                        : 'Cost finalised in your quote when we reach out'}
                     </span>
                   </span>
                 </button>

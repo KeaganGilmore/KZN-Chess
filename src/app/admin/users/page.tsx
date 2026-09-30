@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Loader2, Search, Shield, ShieldOff } from 'lucide-react';
+import { Loader2, Pencil, Search, Shield, ShieldOff, Trash2, UserPlus } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { UserFormDialog } from '@/components/admin/user-form-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +39,9 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [banning, setBanning] = useState<any | null>(null);
+  const [deleting, setDeleting] = useState<any | null>(null);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -70,6 +74,17 @@ export default function AdminUsersPage() {
     }
   };
 
+  const deleteUser = async (id: string) => {
+    const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      toast({ title: 'User deleted' });
+      fetchUsers();
+    } else {
+      const body = await res.json().catch(() => ({}));
+      toast({ title: body.error || 'Failed to delete user', variant: 'destructive' });
+    }
+  };
+
   const filtered = users.filter((u) => {
     if (search) {
       const q = search.toLowerCase();
@@ -95,12 +110,23 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">User Management</h1>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">User Management</h1>
         <p className="text-muted-foreground mt-1">
           Manage roles, tutor access, and account status. Tutor is an add-on
           capability — any role can also be a tutor.
         </p>
+        </div>
+        <Button
+          onClick={() => {
+            setEditing(null);
+            setFormOpen(true);
+          }}
+          className="gap-2 shrink-0"
+        >
+          <UserPlus className="w-4 h-4" /> Add user
+        </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -191,6 +217,19 @@ export default function AdminUsersPage() {
                   </Badge>
                 </TableCell>
                 <TableCell>
+                  <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setEditing(u);
+                      setFormOpen(true);
+                    }}
+                    aria-label={`Edit ${u.name}`}
+                    title="Edit / reset password"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
                   <Button
                     size="sm"
                     variant={u.is_active ? 'destructive' : 'outline'}
@@ -209,6 +248,17 @@ export default function AdminUsersPage() {
                       </>
                     )}
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setDeleting(u)}
+                    aria-label={`Delete ${u.name}`}
+                    title="Delete user"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -220,6 +270,30 @@ export default function AdminUsersPage() {
           </p>
         )}
       </div>
+
+      <UserFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        user={editing}
+        onSaved={fetchUsers}
+      />
+
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(o) => !o && setDeleting(null)}
+        title="Delete this user?"
+        description={
+          deleting
+            ? `${deleting.name} (${deleting.email}) will be permanently removed. This cannot be undone.`
+            : undefined
+        }
+        confirmLabel="Delete User"
+        destructive
+        onConfirm={async () => {
+          if (deleting) await deleteUser(deleting.id);
+          setDeleting(null);
+        }}
+      />
 
       <ConfirmDialog
         open={!!banning}

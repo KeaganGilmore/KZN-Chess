@@ -77,8 +77,8 @@ export function OrderSummary({
             {fulfilment === 'collection'
               ? 'Free'
               : delivery_fee_cents === 0
-                ? 'Free'
-                : formatZar(delivery_fee_cents)}
+                ? 'Quoted'
+                : `From ${formatZar(delivery_fee_cents)}`}
           </dd>
         </div>
         <div className="flex justify-between gap-4 text-base font-bold border-t border-border pt-3">
@@ -86,7 +86,11 @@ export function OrderSummary({
           <dd className="tabular-nums">{formatZar(total_cents)}</dd>
         </div>
       </dl>
-      <p className="text-xs text-muted-foreground">Prices include VAT.</p>
+      <p className="text-xs text-muted-foreground">
+        Prices include VAT.
+        {fulfilment === 'delivery' &&
+          ' The delivery fee shown is the minimum; the final cost is confirmed in your quote when we reach out.'}
+      </p>
     </div>
   );
 }

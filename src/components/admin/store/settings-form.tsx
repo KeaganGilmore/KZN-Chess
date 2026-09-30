@@ -231,7 +231,7 @@ export function SettingsForm() {
               {form.delivery_enabled && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="s-fee">Delivery fee (R)</Label>
+                    <Label htmlFor="s-fee">Minimum delivery fee (R)</Label>
                     <Input
                       id="s-fee"
                       inputMode="decimal"
