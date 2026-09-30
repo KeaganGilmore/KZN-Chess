@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: { provide
       return NextResponse.json({ error: 'Unknown order' }, { status: 404 });
     }
     if (result.reference) {
-      await updateOrderAdminFields(order.id, { payment_reference: result.reference });
+      await updateOrderAdminFields(order, { payment_reference: result.reference });
     }
     if (result.paid && order.status === 'awaiting_payment') {
       await setOrderStatus(order.id, 'paid', `Payment confirmed by ${provider.label}`, null);

@@ -173,9 +173,19 @@ export const orderStatusSchema = z.object({
     'cancelled',
   ]),
   note: z.string().trim().max(500).optional().nullable(),
+  // Admin override: allow any status, not just the next step in the lifecycle.
+  override: z.boolean().optional(),
 });
 
 export const orderAdminSchema = z.object({
   admin_note: z.string().trim().max(2000).nullable().optional(),
   payment_reference: z.string().trim().max(120).nullable().optional(),
+  payment_status: z.enum(['pending', 'paid', 'failed', 'refunded']).optional(),
+  // Final delivery quote; the order total is recomputed from it.
+  delivery_fee_cents: z.number().int().min(0).max(100_000_000).optional(),
+  customer_name: z.string().trim().min(2).max(100).optional(),
+  customer_email: z.string().trim().email().max(120).optional(),
+  customer_phone: z.string().trim().min(8).max(20).optional(),
+  delivery_address: deliveryAddressSchema.optional(),
 });
+export type OrderAdminFields = z.infer<typeof orderAdminSchema>;

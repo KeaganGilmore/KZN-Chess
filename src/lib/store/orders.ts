@@ -9,6 +9,7 @@ import type {
   OrderWithItems,
   PricedLine,
 } from './types';
+import type { OrderAdminFields } from './validation';
 
 export interface PlaceOrderInput {
   user_id: string | null;
@@ -128,15 +129,41 @@ export async function setOrderStatus(
   return data as Order;
 }
 
-export async function updateOrderAdminFields(
-  id: string,
-  fields: { admin_note?: string | null; payment_reference?: string | null }
-): Promise<void> {
+export async function updateOrderAdminFields(order: Order, fields: OrderAdminFields): Promise<void> {
+  const update: Record<string, unknown> = { ...fields, updated_at: new Date().toISOString() };
+
+  if (fields.delivery_fee_cents !== undefined) {
+    if (order.fulfilment !== 'delivery') {
+      throw new OrderUpdateError('Only delivery orders have a delivery fee');
+    }
+    update.total_cents = order.subtotal_cents + fields.delivery_fee_cents;
+  }
+  if (fields.delivery_address !== undefined && order.fulfilment !== 'delivery') {
+    throw new OrderUpdateError('Only delivery orders have a delivery address');
+  }
+  if (fields.customer_email !== undefined) {
+    update.customer_email = fields.customer_email.toLowerCase();
+  }
+  if (fields.payment_status !== undefined) {
+    if (fields.payment_status === 'paid') {
+      if (!order.paid_at) update.paid_at = new Date().toISOString();
+    } else if (fields.payment_status !== 'refunded') {
+      update.paid_at = null;
+    }
+  }
+
   const supabase = createServerClient();
-  const { error } = await supabase
-    .from('orders')
-    .update({ ...fields, updated_at: new Date().toISOString() })
-    .eq('id', id);
+  const { error } = await supabase.from('orders').update(update).eq('id', order.id);
+  if (error) throw new Error(error.message);
+}
+
+/** A rejected admin edit (bad input for this order), as opposed to a DB failure. */
+export class OrderUpdateError extends Error {}
+
+/** Permanently removes a cancelled order (items and events cascade). */
+export async function deleteOrder(id: string): Promise<void> {
+  const supabase = createServerClient();
+  const { error } = await supabase.from('orders').delete().eq('id', id);
   if (error) throw new Error(error.message);
 }
 
