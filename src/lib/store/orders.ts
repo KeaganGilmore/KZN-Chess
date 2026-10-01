@@ -10,6 +10,7 @@ import type {
   PricedLine,
 } from './types';
 import type { OrderAdminFields } from './validation';
+import { ORDER_STATUSES } from './status';
 
 export interface PlaceOrderInput {
   user_id: string | null;
@@ -165,6 +166,21 @@ export async function deleteOrder(id: string): Promise<void> {
   const supabase = createServerClient();
   const { error } = await supabase.from('orders').delete().eq('id', id);
   if (error) throw new Error(error.message);
+}
+
+/** Number of orders in each status, for the admin order tabs. */
+export async function statusCounts(): Promise<Record<OrderStatus, number>> {
+  const supabase = createServerClient();
+  const counts = await Promise.all(
+    ORDER_STATUSES.map(async (s) => {
+      const { count } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', s);
+      return [s, count ?? 0] as const;
+    })
+  );
+  return Object.fromEntries(counts) as Record<OrderStatus, number>;
 }
 
 /** Admin overview counts, computed live. */

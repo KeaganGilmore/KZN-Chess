@@ -264,9 +264,9 @@ export function CartPage() {
           </dl>
           <p className="text-xs text-muted-foreground">
             {settings && settings.delivery_fee_cents > 0
-              ? `Delivery from ${formatZar(settings.delivery_fee_cents)}, finalised in your quote when we reach out.`
-              : 'Delivery cost is finalised in your quote when we reach out.'}{' '}
-            Collection is free.
+              ? `Courier delivery is estimated at ${formatZar(settings.delivery_fee_cents)}. The final amount will be confirmed when we contact you to arrange delivery.`
+              : 'The courier fee will be confirmed when we contact you to arrange delivery.'}{' '}
+            Collection is free of charge.
           </p>
           {problems > 0 && (
             <p className="text-xs text-orange-400">

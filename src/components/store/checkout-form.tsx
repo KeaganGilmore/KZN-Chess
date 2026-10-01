@@ -375,8 +375,8 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
                     <span className="block font-medium">Delivery</span>
                     <span className="block text-xs text-muted-foreground">
                       {settings.delivery_fee_cents > 0
-                        ? `From ${formatZar(settings.delivery_fee_cents)} · finalised in your quote when we reach out`
-                        : 'Cost finalised in your quote when we reach out'}
+                        ? `Estimated courier fee of ${formatZar(settings.delivery_fee_cents)} · final amount confirmed when we contact you to arrange delivery`
+                        : 'Courier fee confirmed when we contact you to arrange delivery'}
                     </span>
                   </span>
                 </button>

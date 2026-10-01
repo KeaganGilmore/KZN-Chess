@@ -78,7 +78,7 @@ export function OrderSummary({
               ? 'Free'
               : delivery_fee_cents === 0
                 ? 'Quoted'
-                : `From ${formatZar(delivery_fee_cents)}`}
+                : `Est. ${formatZar(delivery_fee_cents)}`}
           </dd>
         </div>
         <div className="flex justify-between gap-4 text-base font-bold border-t border-border pt-3">
@@ -89,7 +89,7 @@ export function OrderSummary({
       <p className="text-xs text-muted-foreground">
         Prices include VAT.
         {fulfilment === 'delivery' &&
-          ' The delivery fee shown is the minimum; the final cost is confirmed in your quote when we reach out.'}
+          ' The delivery fee is an estimate; the final amount will be confirmed when we contact you to arrange delivery.'}
       </p>
     </div>
   );

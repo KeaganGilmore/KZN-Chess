@@ -93,6 +93,10 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
       const status = err instanceof OrderUpdateError ? 400 : 500;
       return NextResponse.json({ error: err?.message || 'Update failed' }, { status });
     }
+    // Recording a payment moves an unpaid order along so the two never disagree.
+    if (parsed.data.payment_status === 'paid' && order.status === 'awaiting_payment') {
+      await setOrderStatus(order.id, 'paid', 'Payment recorded by admin', user.id);
+    }
     await supabase.from('audit_logs').insert({
       admin_id: user.id,
       admin_email: user.email,
