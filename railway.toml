@@ -1,10 +1,13 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "chmod +x scripts/migrate.sh && ./scripts/migrate.sh && npm run build"
+# Standalone output does not include static assets; copy them next to server.js.
+buildCommand = "chmod +x scripts/migrate.sh && ./scripts/migrate.sh && npm run build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
 nixpacksConfigPath = "nixpacks.toml"
 
 [deploy]
-startCommand = "npx next start -H 0.0.0.0 -p ${PORT:-3000}"
+# Run the standalone server directly (no npx/npm parent process) with a capped
+# heap so V8 returns memory instead of growing into the 24 GB limit.
+startCommand = "HOSTNAME=0.0.0.0 PORT=${PORT:-3000} node --max-old-space-size=256 .next/standalone/server.js"
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
