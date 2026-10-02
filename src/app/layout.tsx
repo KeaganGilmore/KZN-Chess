@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
 import { SessionProvider } from '@/components/providers/session-provider';
@@ -11,17 +11,19 @@ import { Toaster } from '@/components/ui/toaster';
 import { JsonLd } from '@/components/seo/json-ld';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
+// Self-hosted (npm) so builds never depend on fetching fonts.googleapis.com.
+const spaceGrotesk = localFont({
+  src: '../../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2',
   variable: '--font-heading',
   display: 'swap',
-  weight: ['500', '600', '700'],
+  weight: '300 700',
 });
 
-const inter = Inter({
-  subsets: ['latin'],
+const inter = localFont({
+  src: '../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
   variable: '--font-body',
   display: 'swap',
+  weight: '100 900',
 });
 
 export const metadata: Metadata = {
