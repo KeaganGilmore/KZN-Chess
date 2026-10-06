@@ -15,7 +15,7 @@ const getData = cache(async (id: string) => {
 
   const { data: tournament } = await supabase
     .from('tournaments')
-    .select('*, district:districts(*), organizer:users(id, name, email)')
+    .select('*, district:districts(*), organizer:users(id, name)')
     .eq('id', id)
     .in('status', ['approved', 'featured', 'pending'])
     .single();

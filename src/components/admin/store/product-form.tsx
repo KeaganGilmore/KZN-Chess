@@ -603,7 +603,7 @@ export function ProductForm({ product }: { product?: Product }) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="p-price">Price (R, VAT incl.)</Label>
+                <Label htmlFor="p-price">Price (R)</Label>
                 <Input
                   id="p-price"
                   inputMode="decimal"

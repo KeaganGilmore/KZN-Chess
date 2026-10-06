@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Trophy, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { LegalLinks } from '@/components/legal/legal-links';
 
 export function AuthForm() {
   const router = useRouter();
@@ -50,6 +52,7 @@ export function AuthForm() {
       name: formData.get('name'),
       email: formData.get('email'),
       password: formData.get('password'),
+      accept_terms: formData.get('accept_terms') === 'on',
     };
 
     try {
@@ -179,6 +182,26 @@ export function AuthForm() {
                   className="bg-background/50"
                 />
               </div>
+              <label htmlFor="reg-accept" className="flex items-start gap-3 text-sm text-muted-foreground">
+                <input
+                  id="reg-accept"
+                  name="accept_terms"
+                  type="checkbox"
+                  required
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-primary"
+                />
+                <span>
+                  I agree to the{' '}
+                  <Link href="/terms" target="_blank" className="text-primary underline underline-offset-2">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">
+                    Privacy Policy
+                  </Link>
+                  . If I&apos;m under 18, my parent or guardian has agreed to them too.
+                </span>
+              </label>
               <Button
                 type="submit"
                 disabled={loading}
@@ -193,6 +216,7 @@ export function AuthForm() {
             </form>
           </TabsContent>
         </Tabs>
+        <LegalLinks className="mt-6" />
       </CardContent>
     </Card>
   );

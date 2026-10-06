@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
+import { LEGAL_VERSION } from '@/lib/legal';
 
 export async function GET(request: NextRequest) {
   const supabase = createServerClient();
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from('tournaments')
-    .select('*, district:districts(*), organizer:users(id, name, email)')
+    .select('*, district:districts(*), organizer:users(id, name)')
     .order('date', { ascending: true });
 
   if (all === 'true') {
@@ -62,6 +63,14 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+  // Organiser terms (Terms of Service section 6): consent from players, and
+  // from parents/guardians for under-18s, before their details are entered.
+  if (body.accept_terms !== true) {
+    return NextResponse.json(
+      { error: 'Please accept the organiser terms to submit a tournament' },
+      { status: 400 }
+    );
+  }
   if (body.time_control && !['classical', 'rapid', 'blitz', 'bullet'].includes(body.time_control)) {
     return NextResponse.json({ error: 'Invalid time control' }, { status: 400 });
   }
@@ -97,6 +106,14 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const { error: termsError } = await supabase
+    .from('users')
+    .update({ terms_version: LEGAL_VERSION, terms_accepted_at: new Date().toISOString() })
+    .eq('id', user.id);
+  if (termsError) {
+    console.error('Recording organiser terms acceptance failed:', termsError.message);
   }
 
   return NextResponse.json(data, { status: 201 });

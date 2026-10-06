@@ -41,6 +41,8 @@ const baseOrder: Order = {
   paid_at: null,
   customer_note: null,
   admin_note: null,
+  terms_version: null,
+  terms_accepted_at: null,
   created_at: '',
   updated_at: '',
 };

@@ -27,6 +27,8 @@ export const checkoutSchema = z.object({
   collection_point_id: z.string().uuid().optional().nullable(),
   payment_provider: z.string().min(1).max(40),
   note: z.string().trim().max(500).optional().nullable(),
+  // Terms of sale + Privacy Policy; the accepted version is stored on the order.
+  accept_terms: z.literal(true),
 });
 export type CheckoutBody = z.infer<typeof checkoutSchema>;
 

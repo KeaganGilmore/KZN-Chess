@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { hashPassword } from '@/lib/passwords';
+import { LEGAL_VERSION } from '@/lib/legal';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -14,6 +15,13 @@ export async function POST(request: NextRequest) {
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: 'Name, email, and password are required' },
+        { status: 400 }
+      );
+    }
+
+    if (body.accept_terms !== true) {
+      return NextResponse.json(
+        { error: 'Please accept the Terms of Service and Privacy Policy' },
         { status: 400 }
       );
     }
@@ -54,6 +62,8 @@ export async function POST(request: NextRequest) {
         email,
         password_hash,
         role: 'player',
+        terms_version: LEGAL_VERSION,
+        terms_accepted_at: new Date().toISOString(),
       })
       .select()
       .single();

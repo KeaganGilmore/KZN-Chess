@@ -10,7 +10,7 @@ export async function GET(
   const supabase = createServerClient();
   const { data, error } = await supabase
     .from('tournament_arbiters')
-    .select('*, user:users(id, name, email)')
+    .select('*, user:users(id, name)')
     .eq('tournament_id', params.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -53,7 +53,7 @@ export async function POST(
       user_id,
       role: arbiter_role || 'arbiter',
     }, { onConflict: 'tournament_id,user_id' })
-    .select('*, user:users(id, name, email)')
+    .select('*, user:users(id, name)')
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

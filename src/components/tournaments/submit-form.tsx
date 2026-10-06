@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Loader2, Eye, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,7 @@ export function SubmitTournamentForm({
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState('edit');
   const isEditMode = !!tournament;
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [formData, setFormData] = useState({
     name: tournament?.name || '',
     description: tournament?.description || '',
@@ -97,6 +99,15 @@ export function SubmitTournamentForm({
       });
       return;
     }
+    if (!isEditMode && !acceptTerms) {
+      setTab('edit');
+      toast({
+        title: 'Confirm player consent',
+        description: 'Please accept the organiser terms before submitting.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -109,7 +120,7 @@ export function SubmitTournamentForm({
         body: JSON.stringify({
           ...formData,
           rounds: parseInt(formData.rounds) || 5,
-          ...(isEditMode ? {} : { organizer_id: userId }),
+          ...(isEditMode ? {} : { organizer_id: userId, accept_terms: acceptTerms }),
         }),
       });
 
@@ -381,6 +392,31 @@ export function SubmitTournamentForm({
               </div>
             </CardContent>
           </Card>
+
+          {!isEditMode && (
+            <label htmlFor="organiser-terms" className="flex items-start gap-3 text-sm text-muted-foreground">
+              <input
+                id="organiser-terms"
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mt-0.5 h-5 w-5 shrink-0 accent-primary"
+              />
+              <span>
+                I accept the{' '}
+                <Link
+                  href="/terms#for-organisers-directors-and-arbiters"
+                  target="_blank"
+                  className="text-primary underline underline-offset-2"
+                >
+                  organiser terms
+                </Link>
+                . Before adding players I&apos;ll have their consent (or a parent or guardian&apos;s, for
+                under-18s) to publish their tournament details, and the contact details above may be shown
+                publicly.
+              </span>
+            </label>
+          )}
 
           <Button
             onClick={handleSubmit}

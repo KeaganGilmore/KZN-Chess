@@ -8,6 +8,7 @@ import { priceCart } from '@/lib/store/cart';
 import { placeOrder } from '@/lib/store/orders';
 import { getPaymentProvider } from '@/lib/store/payments';
 import type { Order } from '@/lib/store/types';
+import { LEGAL_VERSION } from '@/lib/legal';
 
 export async function POST(request: NextRequest) {
   const parsed = checkoutSchema.safeParse(await request.json().catch(() => null));
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
       total_cents: cart.total_cents,
       payment_provider: provider.id,
       customer_note: body.note || null,
+      terms_version: LEGAL_VERSION,
       lines: cart.lines,
     });
   } catch (err: unknown) {

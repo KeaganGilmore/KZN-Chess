@@ -10,6 +10,8 @@ const STATIC_ROUTES: Array<{ path: string; changeFrequency: MetadataRoute.Sitema
   { path: '/gallery', changeFrequency: 'weekly', priority: 0.5 },
   { path: '/about', changeFrequency: 'monthly', priority: 0.4 },
   { path: '/learn', changeFrequency: 'weekly', priority: 0.5 },
+  { path: '/terms', changeFrequency: 'yearly', priority: 0.2 },
+  { path: '/privacy', changeFrequency: 'yearly', priority: 0.2 },
 ];
 
 async function listPublicTournaments(): Promise<{ id: string; updated_at: string }[]> {

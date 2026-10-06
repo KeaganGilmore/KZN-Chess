@@ -4,6 +4,7 @@ import path from 'node:path';
 import { createServerClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth';
 import { getUploadDir } from '@/lib/uploads';
+import { stripImageMetadata } from '@/lib/image-metadata';
 
 const EXT_BY_TYPE: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -49,8 +50,15 @@ export async function POST(request: NextRequest) {
   }
   const filePath = `${folder}/${fileName}`;
 
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  // Published photos must not carry GPS location or device details (see the
+  // Privacy Policy), so every upload is re-encoded without metadata.
+  let buffer: Buffer;
+  try {
+    buffer = await stripImageMetadata(Buffer.from(await file.arrayBuffer()), file.type);
+  } catch (err) {
+    console.error('Upload image processing failed:', err);
+    return NextResponse.json({ error: 'That file could not be read as an image' }, { status: 400 });
+  }
 
   // Local disk (a Railway volume in production), served by /api/media.
   const uploadDir = getUploadDir();

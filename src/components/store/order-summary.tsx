@@ -86,11 +86,12 @@ export function OrderSummary({
           <dd className="tabular-nums">{formatZar(total_cents)}</dd>
         </div>
       </dl>
-      <p className="text-xs text-muted-foreground">
-        Prices include VAT.
-        {fulfilment === 'delivery' &&
-          ' The delivery fee is an estimate; the final amount will be confirmed when we contact you to arrange delivery.'}
-      </p>
+      {fulfilment === 'delivery' && (
+        <p className="text-xs text-muted-foreground">
+          The delivery fee is an estimate; the final amount will be confirmed when we contact you to
+          arrange delivery.
+        </p>
+      )}
     </div>
   );
 }

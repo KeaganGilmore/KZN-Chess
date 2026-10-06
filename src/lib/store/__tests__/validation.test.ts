@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { imageSchema, imageUrlSchema, productSchema, variantSchema } from '@/lib/store/validation';
+import { checkoutSchema, imageSchema, imageUrlSchema, productSchema, variantSchema } from '@/lib/store/validation';
 
 describe('imageUrlSchema', () => {
   it('accepts paths produced by /api/upload', () => {
@@ -85,6 +85,27 @@ describe('variant/image correlation (client_key / variant_key)', () => {
     if (res.success) {
       expect(res.data.variants.map((v) => v.client_key)).toEqual(['v-red', 'v-blue']);
       expect(res.data.images.map((i) => i.variant_key)).toEqual([null, 'v-red']);
+    }
+  });
+});
+
+describe('checkoutSchema terms acceptance', () => {
+  const order = {
+    items: [{ product_id: '00000000-0000-4000-8000-000000000001', variant_id: null, quantity: 1 }],
+    customer: { name: 'Jane Player', email: 'jane@example.com', phone: '0821234567' },
+    fulfilment: 'collection',
+    collection_point_id: '00000000-0000-4000-8000-000000000002',
+    payment_provider: 'manual_eft',
+  };
+
+  it('accepts an order whose customer accepted the terms', () => {
+    expect(checkoutSchema.safeParse({ ...order, accept_terms: true }).success).toBe(true);
+  });
+
+  it('rejects an order without acceptance', () => {
+    for (const accept_terms of [undefined, false, 'true']) {
+      const res = checkoutSchema.safeParse({ ...order, accept_terms });
+      expect(res.success, String(accept_terms)).toBe(false);
     }
   });
 });

@@ -148,6 +148,9 @@ export interface Order {
   paid_at: string | null;
   customer_note: string | null;
   admin_note: string | null;
+  /** Terms version accepted at checkout; null for orders placed before acceptance was recorded. */
+  terms_version: string | null;
+  terms_accepted_at: string | null;
   created_at: string;
   updated_at: string;
 }

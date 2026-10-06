@@ -57,6 +57,7 @@ const FIELD_LABELS: Record<string, string> = {
   'delivery_address.province': 'Choose a province',
   collection_point_id: 'Choose a collection point',
   payment_provider: 'Choose a payment method',
+  accept_terms: 'Please accept the terms to place your order',
 };
 
 const selectClass =
@@ -95,6 +96,7 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
   );
   const [providerId, setProviderId] = useState<string>(providers[0]?.id ?? '');
   const [note, setNote] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -142,6 +144,7 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
       e.collection_point_id = FIELD_LABELS.collection_point_id;
     }
     if (!providerId) e.payment_provider = FIELD_LABELS.payment_provider;
+    if (!acceptTerms) e.accept_terms = FIELD_LABELS.accept_terms;
     return e;
   };
 
@@ -181,6 +184,7 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
           collection_point_id: fulfilment === 'collection' ? collectionPointId : null,
           payment_provider: providerId,
           note: note.trim() || null,
+          accept_terms: acceptTerms,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -642,6 +646,39 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
               </Link>
             </p>
           )}
+          <div>
+            <label htmlFor="accept-terms" className="flex items-start gap-3 text-sm text-muted-foreground">
+              <input
+                id="accept-terms"
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => {
+                  setAcceptTerms(e.target.checked);
+                  if (e.target.checked && errors.accept_terms) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.accept_terms;
+                      return next;
+                    });
+                  }
+                }}
+                aria-invalid={!!errors.accept_terms}
+                className="mt-0.5 h-5 w-5 shrink-0 accent-primary"
+              />
+              <span>
+                I accept the{' '}
+                <Link href="/terms#buying-from-the-kzn-chess-store" target="_blank" className="text-primary underline underline-offset-2">
+                  terms of sale
+                </Link>{' '}
+                and the{' '}
+                <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </label>
+            <FieldError message={errors.accept_terms} />
+          </div>
           <Button
             type="submit"
             size="lg"
@@ -657,7 +694,16 @@ export function CheckoutForm({ settings, collectionPoints, providers, user }: Pr
             )}
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            You will get a private link to track this order.
+            You will get a private link to track this order. You can cancel most orders within 7 days
+            of delivery —{' '}
+            <Link
+              href="/terms#cancelling-within-7-days-cooling-off"
+              target="_blank"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              cancellations and returns
+            </Link>
+            .
           </p>
         </CardContent>
       </Card>

@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { LegalLinks } from '@/components/legal/legal-links';
 
 interface AccountPanelProps {
   user: {
@@ -71,6 +72,7 @@ export function AccountPanel({ user }: AccountPanelProps) {
           <LogOut className="w-4 h-4" />
           Sign Out
         </Button>
+        <LegalLinks className="pt-4" />
       </CardContent>
     </Card>
   );

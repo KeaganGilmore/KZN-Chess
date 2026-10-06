@@ -26,6 +26,8 @@ export interface PlaceOrderInput {
   total_cents: number;
   payment_provider: string;
   customer_note: string | null;
+  /** LEGAL_VERSION the customer accepted at checkout. */
+  terms_version: string;
   lines: PricedLine[];
 }
 

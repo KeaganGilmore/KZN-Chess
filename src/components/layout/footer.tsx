@@ -4,6 +4,8 @@ import { Mail, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { createServerClient } from '@/lib/supabase/server';
 import { CONTACT_EMAIL } from '@/lib/site';
+import { COMPANY } from '@/lib/legal';
+import { LegalLinks } from '@/components/legal/legal-links';
 
 // Pull a handful of real, active districts from the DB so the footer links
 // always match live data (no hardcoded list that drifts on rename).
@@ -26,10 +28,18 @@ export async function Footer() {
   const districts = await getFooterDistricts();
 
   return (
-    <footer className="hidden md:block bg-card pattern-beadwork">
+    <footer className="bg-card pattern-beadwork">
       {/* Beadwork top border */}
       <div className="h-1 bg-gradient-to-r from-[var(--ochre)] via-[var(--teal)] to-[var(--deep-red)]" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Mobile: the full footer is desktop-only, but the legal pages must stay
+          reachable. Bottom padding clears the fixed bottom nav. */}
+      <div className="md:hidden px-4 pt-6 pb-20 space-y-1.5">
+        <LegalLinks />
+        <p className="text-center text-[11px] text-muted-foreground">
+          &copy; {new Date().getFullYear()} {COMPANY.tradingName} · {COMPANY.legalName}
+        </p>
+      </div>
+      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
@@ -116,9 +126,12 @@ export async function Footer() {
         <Separator className="my-8 bg-border" />
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} KZN Chess. All rights reserved.
-          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <span>
+              &copy; {new Date().getFullYear()} {COMPANY.tradingName}, operated by {COMPANY.legalName}.
+            </span>
+            <LegalLinks className="text-left" />
+          </div>
           <a
             href="https://coreaxisdev.com"
             target="_blank"
