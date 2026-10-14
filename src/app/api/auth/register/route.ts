@@ -69,11 +69,18 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      // Log the real cause (e.g. a migration not yet applied) where Railway
+      // shows it; the client gets a generic message, not database internals.
+      console.error('Registration insert failed:', error.message);
+      return NextResponse.json(
+        { error: 'We could not create your account right now. Please try again later.' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ user: { id: data.id, email: data.email, name: data.name } });
-  } catch {
+  } catch (err) {
+    console.error('Registration failed:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
