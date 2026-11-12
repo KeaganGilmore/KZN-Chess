@@ -60,12 +60,15 @@ export interface MailMessage {
   replyTo?: string;
 }
 
-/** Sends one message. Throws if SMTP is not configured or the server rejects it. */
-export async function sendMail(msg: MailMessage): Promise<void> {
+/**
+ * Sends one message and returns the server's acceptance reply (e.g. "250 OK id=…").
+ * Throws if SMTP is not configured or the server rejects it.
+ */
+export async function sendMail(msg: MailMessage): Promise<{ response: string; messageId: string }> {
   const cfg = smtpConfig();
   if (!cfg) throw new Error('SMTP is not configured (SMTP_HOST, SMTP_USER, SMTP_PASS)');
   if (msg.to.length === 0) throw new Error('sendMail: no recipients');
-  await transporterFor(cfg).sendMail({
+  return transporterFor(cfg).sendMail({
     from: cfg.from,
     to: msg.to,
     subject: msg.subject,

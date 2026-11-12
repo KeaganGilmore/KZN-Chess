@@ -134,10 +134,16 @@ export async function notifyNewOrder(
     return;
   }
   try {
-    await sendMail({ to, ...buildNewOrderEmail(order, lines, { siteUrl: SITE_URL, paymentLabel }) });
+    const info = await sendMail({
+      to,
+      ...buildNewOrderEmail(order, lines, { siteUrl: SITE_URL, paymentLabel }),
+    });
+    console.log(
+      `Order ${order.order_number}: staff email sent to ${to.join(', ')} (server: ${info.response})`
+    );
   } catch (err) {
     console.error(
-      `Order ${order.order_number}: staff email failed:`,
+      `Order ${order.order_number}: staff email failed (user ${envStr('SMTP_USER')} @ ${envStr('SMTP_HOST')}):`,
       err instanceof Error ? err.message : err
     );
   }
