@@ -7,6 +7,7 @@ import { getProductsByIds, getStoreSettings } from '@/lib/store/catalog';
 import { priceCart } from '@/lib/store/cart';
 import { placeOrder } from '@/lib/store/orders';
 import { getPaymentProvider } from '@/lib/store/payments';
+import { notifyNewOrder } from '@/lib/store/notifications';
 import type { Order } from '@/lib/store/types';
 import { LEGAL_VERSION } from '@/lib/legal';
 
@@ -106,6 +107,10 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+
+  // Alert staff by email. Not awaited: the order is already committed and
+  // the customer shouldn't wait on SMTP. notifyNewOrder logs its own failures.
+  void notifyNewOrder(order, cart.lines, provider.label);
 
   const payment = await provider.createPayment(order, settings);
   return NextResponse.json(

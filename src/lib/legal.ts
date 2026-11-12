@@ -6,8 +6,8 @@ import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from './site';
  * materially: it is stored with every acceptance (users.terms_version,
  * orders.terms_version), so we can tell which text someone agreed to.
  */
-export const LEGAL_VERSION = '2026-10-06';
-export const LEGAL_EFFECTIVE_DATE = '6 October 2026';
+export const LEGAL_VERSION = '2026-11-12';
+export const LEGAL_EFFECTIVE_DATE = '12 November 2026';
 
 export interface CompanyDetails {
   legalName: string;

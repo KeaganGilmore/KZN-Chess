@@ -95,6 +95,7 @@ The following are **not** public: your account email address, your orders, your 
 - **Google** serves advertising where ads are shown, and collects information through its own cookies (see section 10).
 - **Couriers** receive your name, phone number and delivery address so they can deliver your order.
 - **Our bank** processes EFT payments and refunds.
+- **Our email providers:** when you place an order, its details (your name, email address, phone number, delivery address or collection point, items, amounts and note) are emailed to our store staff. Domains.co.za (South Africa) sends the email, and staff mailboxes may be hosted by Google (Gmail).
 - **Tournament organisers, directors and arbiters** see and manage player details for their own events. They can export them (as TRF and CSV files) to run the event and to submit results to rating bodies such as FIDE and Chess South Africa.
 - **WhatsApp (Meta)** receives information only if you choose to share or message through WhatsApp. The pre-filled message (which may include your order link or a tournament's pairings) is then handled under WhatsApp's own privacy policy.
 - **Authorities or other parties** receive information where the law, a court order or the protection of someone's rights or safety requires it, or to prevent fraud.
@@ -104,7 +105,7 @@ People we authorise to administer the site access personal information only as n
 
 ## 8. Information stored outside South Africa
 
-Our hosting provider stores and processes information on servers outside South Africa. We transfer personal information across borders only as section 72 of POPIA allows. The transfer is necessary to provide the service you've asked for, and we use providers that commit to protecting personal information under their data processing terms.
+Our hosting provider, and Google for staff email, store and process information on servers outside South Africa. We transfer personal information across borders only as section 72 of POPIA allows. The transfer is necessary to provide the service you've asked for, and we use providers that commit to protecting personal information under their data processing terms.
 
 ## 9. How we protect your information
 
