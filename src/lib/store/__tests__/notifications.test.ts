@@ -79,6 +79,12 @@ describe('buildNewOrderEmail', () => {
       { siteUrl: 'https://kznchess.co.za', paymentLabel: 'EFT' }
     );
     expect(c.text).not.toContain('Delivery:');
-    expect(c.text).toContain('Collection at Durban Chess Club');
+    expect(c.text).toContain('COLLECTION\nDurban Chess Club');
+  });
+
+  it('references the embedded logo only when it is attached', () => {
+    const opts = { siteUrl: 'https://kznchess.co.za', paymentLabel: 'EFT' };
+    expect(buildNewOrderEmail(order, lines, { ...opts, withLogo: true }).html).toContain('src="cid:kznchess-logo"');
+    expect(buildNewOrderEmail(order, lines, opts).html).not.toContain('cid:');
   });
 });

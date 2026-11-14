@@ -6,7 +6,6 @@ import {
   Undo2,
   Trash2,
   Save,
-  Upload,
   CornerDownRight,
   Repeat,
   Maximize2,
@@ -25,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { AnnotatedBoard, ARROW_COLORS } from './annotated-board';
 import { BoardStage } from './board-stage';
 import { MarkdownNote } from './markdown-note';
+import { PgnImportCard } from './pgn-import-card';
 
 interface Rep {
   id: string;
@@ -89,8 +89,6 @@ export function RepertoireBuilder({
   const [cbefore, setCbefore] = useState('');
   const [cafter, setCafter] = useState('');
   const [tagsInput, setTagsInput] = useState('');
-  const [pgn, setPgn] = useState('');
-  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     if (!currentId && rootId) setCurrentId(rootId);
@@ -194,19 +192,6 @@ export function RepertoireBuilder({
     const parent = current.parent_id;
     setNodes((prev) => prev.filter((n) => !toRemove.has(n.id)));
     setCurrentId(parent);
-  };
-
-  const importPgn = async () => {
-    if (!pgn.trim()) return;
-    setImporting(true);
-    await fetch(`/api/repertoires/${repertoire.id}/import`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pgn }),
-    });
-    setPgn('');
-    await reload();
-    setImporting(false);
   };
 
   const goParent = () => current?.parent_id && setCurrentId(current.parent_id);
@@ -377,17 +362,7 @@ export function RepertoireBuilder({
                 </Card>
               )}
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Import PGN</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Textarea value={pgn} onChange={(e) => setPgn(e.target.value)} rows={2} placeholder="Paste a PGN line…" />
-                  <Button size="sm" onClick={importPgn} disabled={importing || !pgn.trim()}>
-                    <Upload className="w-4 h-4 mr-1.5" /> {importing ? 'Importing…' : 'Import mainline'}
-                  </Button>
-                </CardContent>
-              </Card>
+              <PgnImportCard repertoireId={repertoire.id} onImported={reload} />
             </div>
           )
         }

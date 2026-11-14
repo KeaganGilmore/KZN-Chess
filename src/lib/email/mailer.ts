@@ -52,12 +52,21 @@ export function isEmailConfigured(): boolean {
   return smtpConfig() !== null;
 }
 
+export interface MailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+  /** Set to reference the file inline from the HTML as src="cid:<cid>". */
+  cid?: string;
+}
+
 export interface MailMessage {
   to: string[];
   subject: string;
   text: string;
   html?: string;
   replyTo?: string;
+  attachments?: MailAttachment[];
 }
 
 /**
@@ -75,5 +84,6 @@ export async function sendMail(msg: MailMessage): Promise<{ response: string; me
     text: msg.text,
     html: msg.html,
     replyTo: msg.replyTo,
+    attachments: msg.attachments,
   });
 }
