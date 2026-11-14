@@ -6,7 +6,6 @@ import {
   Undo2,
   Trash2,
   Save,
-  CornerDownRight,
   Repeat,
   Maximize2,
   ArrowRight,
@@ -25,6 +24,7 @@ import { AnnotatedBoard, ARROW_COLORS } from './annotated-board';
 import { BoardStage } from './board-stage';
 import { MarkdownNote } from './markdown-note';
 import { PgnImportCard } from './pgn-import-card';
+import { RepertoireTree } from './repertoire-tree';
 
 interface Rep {
   id: string;
@@ -32,44 +32,6 @@ interface Rep {
   color: 'white' | 'black';
 }
 type Mode = 'edit' | 'read' | 'learn';
-
-function TreeRows({
-  nodes,
-  parentId,
-  currentId,
-  onSelect,
-  depth = 0,
-}: {
-  nodes: RepNode[];
-  parentId: string;
-  currentId: string | null;
-  onSelect: (id: string) => void;
-  depth?: number;
-}) {
-  const kids = childrenOf(nodes, parentId);
-  if (kids.length === 0) return null;
-  return (
-    <>
-      {kids.map((k) => (
-        <div key={k.id}>
-          <button
-            onClick={() => onSelect(k.id)}
-            style={{ paddingLeft: 8 + Math.min(depth, 6) * 14 }}
-            className={cn(
-              'block w-max min-w-full text-left text-sm py-0.5 rounded hover:bg-secondary whitespace-nowrap',
-              k.id === currentId && 'text-primary font-medium'
-            )}
-          >
-            <CornerDownRight className="inline w-3 h-3 mr-1 text-muted-foreground" />
-            {k.move_san}
-            {(k.comment_after || k.comment_before) && <span className="ml-1 text-primary/60">•</span>}
-          </button>
-          <TreeRows nodes={nodes} parentId={k.id} currentId={currentId} onSelect={onSelect} depth={depth + 1} />
-        </div>
-      ))}
-    </>
-  );
-}
 
 export function RepertoireBuilder({
   repertoire,
@@ -353,8 +315,8 @@ export function RepertoireBuilder({
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">Repertoire lines</CardTitle>
                   </CardHeader>
-                  <CardContent className="max-h-64 overflow-auto">
-                    <TreeRows nodes={nodes} parentId={rootId} currentId={currentId} onSelect={setCurrentId} />
+                  <CardContent className="max-h-96 overflow-auto">
+                    <RepertoireTree nodes={nodes} rootId={rootId} currentId={currentId} onSelect={setCurrentId} />
                     {childrenOf(nodes, rootId).length === 0 && (
                       <p className="text-sm text-muted-foreground">Empty — build a line or import a PGN.</p>
                     )}

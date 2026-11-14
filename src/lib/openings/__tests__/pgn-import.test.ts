@@ -37,6 +37,34 @@ describe('buildImportTree', () => {
     expect(lines(t.children).sort()).toEqual(['e4 c5 Nf3 d6', 'e4 c5 c3 d5', 'e4 e5 Nf3 Nc6'].sort());
   });
 
+  it('branches sub-variations from the right position at any depth', () => {
+    const pgn = `1. e4 e5
+      (1... c5 2. Nf3
+        (2. c3 d5 (2... Nf6 3. e5 Nd5) 3. exd5)
+        (2. Nc3 Nc6)
+        2... d6 (2... Nc6 3. Bb5 (3. d4 cxd4)) 3. d4)
+      (1... e6 2. d4 d5)
+    2. Nf3 Nc6 (2... d6 3. d4) 3. Bb5 a6 *`;
+    const t = buildImportTree(pgn);
+    expect(t.errors).toEqual([]);
+    expect(lines(t.children).sort()).toEqual(
+      [
+        'e4 c5 Nf3 d6 d4', // main Sicilian line continues after its sub-variations
+        'e4 c5 Nf3 Nc6 Bb5', // 2...Nc6 instead of 2...d6
+        'e4 c5 Nf3 Nc6 d4 cxd4', // 3.d4 instead of 3.Bb5, a variation inside a variation
+        'e4 c5 c3 d5 exd5', // 2.c3 instead of 2.Nf3
+        'e4 c5 c3 Nf6 e5 Nd5', // 2...Nf6 inside the 2.c3 line
+        'e4 c5 Nc3 Nc6', // a second alternative to 2.Nf3, back to back
+        'e4 e6 d4 d5', // a second alternative to 1...e5
+        'e4 e5 Nf3 d6 d4',
+        'e4 e5 Nf3 Nc6 Bb5 a6',
+      ].sort()
+    );
+    // Shared moves exist once: one 1.e4, one 2.Nf3 after 1...c5.
+    expect(t.children).toHaveLength(1);
+    expect(find(t.children, 'e4', 'c5').children.map((c) => c.san).sort()).toEqual(['Nc3', 'Nf3', 'c3']);
+  });
+
   it('reads several games and merges shared moves', () => {
     const pgn = `[Event "Ch 1"]
 [Site "?"]
